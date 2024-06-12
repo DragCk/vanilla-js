@@ -19,13 +19,22 @@ export class Floorplan{
     }
 
     #addEventListener(){
-        this.canvas.addEventListener("mousedown", () => {console.log("mouse down")})
+        this.canvas.addEventListener("mousedown", (e) => {this.#onmousedown(e)})
         this.canvas.addEventListener("mousemove", () => {console.log("mouse move")})
         this.canvas.addEventListener("mouseup", () => {console.log("mouse up")})
     }
 
-    draw(ctx){
+
+    #onmousedown(e){
+        console.log("Mouse down")
+        const x = e.offsetX
+        const y = e.offsetY
+        new Corner({x,y})
         
+    }
+    draw(ctx){
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        Corner.draw(ctx)
     }
 
 }

@@ -1,3 +1,5 @@
+import { Operations } from "../../operations"
+
 export class Level{
     constructor(inputCount, outputCount){
         this.inputs = new Array(inputCount)
@@ -47,6 +49,9 @@ export class Level{
 
         return level.outputs
     }
+
+
+
 }
 
 export class NeuralNetwork{
@@ -63,5 +68,26 @@ export class NeuralNetwork{
             outputs = Level.feedFoward(outputs, network.levels[i])
         }
         return outputs
+    }
+
+    static mutate(network, amount = 1){
+        network.levels.forEach(level => {
+            for(let i=0 ; i<level.biases.length ; i++){
+                level.biases[i] = Operations.lerp(
+                    level.biases[i],
+                    Math.random() * 2 - 1,
+                    amount
+                )
+            }
+            for(let i=0 ; i<level.weights.length ; i++){
+                for(let j=0 ; j<level.weights[i].length ; j++){
+                    level.weights[i][j] = Operations.lerp(
+                        level.weights[i][j],
+                        Math.random() * 2 - 1,
+                        amount
+                    )
+                }
+            }
+        })
     }
 }

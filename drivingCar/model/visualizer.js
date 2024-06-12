@@ -16,7 +16,6 @@ export class Visualizer{
                 0,
                 network.levels.lenght === 1 ? 0.5 : i/(network.levels.length - 1)
             )
-
             ctx.setLineDash([7, 3])
             Visualizer.drawLevel(
                 ctx, 
@@ -82,6 +81,10 @@ export class Visualizer{
             ctx.strokeStyle = Operations.getRGBA(biases[i])
             ctx.setLineDash([3, 3])
             ctx.stroke()
+            ctx.setLineDash([])
+
+
+            if(outputLabel[i]){
                 ctx.beginPath()
                 ctx.textAlign = "center"
                 ctx.textBaseLine = "middle"
