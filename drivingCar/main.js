@@ -46,7 +46,6 @@ const traffic = [
     new Car(road.getLaneCenter(2),-700,30,50,"DUMMY",2),
 ]
 
-
 const save = () => {
     localStorage.setItem("bestbrain",JSON.stringify(bestCar.brain))
 }

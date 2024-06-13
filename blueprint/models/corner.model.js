@@ -1,3 +1,5 @@
+import { Utils } from "./utils.model"
+
 export class Corner{
     static corners = []
 
@@ -17,12 +19,19 @@ export class Corner{
         
     }
 
+    
 
-    static draw(ctx){
+    static draw(ctx, offsetX, offsetY, scale){
         if(Corner.corners.length > 0){
             Corner.corners.map((c)=>{
                 ctx.beginPath()
-                ctx.arc(c.x, c.y, 10, 0, Math.PI*2)
+                ctx.arc(
+                    Utils.toScreen(c.x, offsetX, scale), 
+                    Utils.toScreen(c.y, offsetY, scale),
+                    10 * scale, 
+                    0, 
+                    Math.PI*2
+                )
                 ctx.fillStyle= "red"
                 ctx.fill()
                 ctx.stroke()
