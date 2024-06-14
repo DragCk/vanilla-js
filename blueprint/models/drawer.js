@@ -1,7 +1,7 @@
-import { Util } from "konva/lib/Util";
+
 import { Corner } from "./corner.model";
 import { Utils } from "./utils.model";
-
+import { Grid } from "./grid.model";
 export class CanvasDrawer {
     constructor(canvas, ctx) {
       this.canvas = canvas;
@@ -32,11 +32,8 @@ export class CanvasDrawer {
       this.leftMouseDown = false;
       this.rightMouseDown = false;
   
-      // touch state
-      this.prevTouches = [null, null]; // up to 2 touches
-      this.singleTouch = false;
-      this.doubleTouch = false;
-  
+      this.grid = new Grid(this.canvas, this.context)
+
       this.init();
     }
   
@@ -53,22 +50,6 @@ export class CanvasDrawer {
       this.canvas.addEventListener("click", this.onMouseClick.bind(this))
     }
   
-    toScreenX(xTrue) {
-      return (xTrue + this.offsetX) * this.scale;
-    }
-  
-    toScreenY(yTrue) {
-      return (yTrue + this.offsetY) * this.scale;
-    }
-  
-    toTrueX(xScreen) {
-      return xScreen / this.scale - this.offsetX;
-    }
-  
-    toTrueY(yScreen) {
-      return yScreen / this.scale - this.offsetY;
-    }
-  
     trueHeight() {
       return this.canvas.clientHeight / this.scale;
     }
@@ -79,11 +60,11 @@ export class CanvasDrawer {
   
     redrawCanvas() {
       // set the canvas to the size of the window
-      this.canvas.width = document.body.clientWidth;
-      this.canvas.height = document.body.clientHeight;
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
   
-      this.context.fillStyle = "#fff";
-      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.grid.drawGrid(this.offsetX, this.offsetY, this.scale)
+    
       for (let i = 0; i < this.drawings.length; i++) {
         const line = this.drawings[i];
         this.drawLine(
@@ -98,10 +79,9 @@ export class CanvasDrawer {
   
     onMouseClick(event){
         
-        const x = Utils.toScreen(event.pageX, this.offsetX, this.scale)
-        const y = Utils.toScreen(event.pageY, this.offsetY, this.scale)
-        
-        
+        const x = Utils.toTrue(event.pageX, this.offsetX, this.scale)
+        const y = Utils.toTrue(event.pageY, this.offsetY, this.scale)
+
         new Corner({x,y})
     }
 
@@ -135,7 +115,8 @@ export class CanvasDrawer {
       const prevScaledX = Utils.toTrue(this.prevCursorX, this.offsetX, this.scale);
       const prevScaledY = Utils.toTrue(this.prevCursorY, this.offsetY, this.scale);
   
-      if (this.leftMouseDown) {
+      
+      if (this.leftMouseDown) { 
         // add the line to our drawing history
         this.drawings.push({
           x0: prevScaledX,
@@ -162,6 +143,7 @@ export class CanvasDrawer {
     }
   
     onMouseWheel(event) {
+        console.log(event)
       const deltaY = event.deltaY;
       const scaleAmount = -deltaY / 500;
       this.scale = this.scale * (1 + scaleAmount);
@@ -190,6 +172,7 @@ export class CanvasDrawer {
       this.context.strokeStyle = "#000";
       this.context.lineWidth = 2;
       this.context.stroke();
+      this.context.closePath()
     }
   
  

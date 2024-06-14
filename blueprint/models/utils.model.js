@@ -8,5 +8,9 @@ export class Utils{
     static toTrue(screen, offset, scale) {
         return screen / scale - offset;
     }
+
+    static toVirtual(real, offset, scale = 1) {
+        return (real - offset) * scale;
+    }
     
 }

@@ -10,17 +10,11 @@ export class Corner{
         this.size = 5
         this.isDragging = false
         
-        this.#addEventLisener()
-        Corner.corners.push({x:this.x, y:this.y})
+        Corner.corners.push({x:this.x, y:this.y, size:this.size})
     }
 
 
-    #addEventLisener(){
-        
-    }
-
-    
-
+ 
     static draw(ctx, offsetX, offsetY, scale){
         if(Corner.corners.length > 0){
             Corner.corners.map((c)=>{
@@ -28,11 +22,12 @@ export class Corner{
                 ctx.arc(
                     Utils.toScreen(c.x, offsetX, scale), 
                     Utils.toScreen(c.y, offsetY, scale),
-                    10 * scale, 
+                    c.size * scale, 
                     0, 
                     Math.PI*2
                 )
                 ctx.fillStyle= "red"
+                ctx.strokeStyle = "black"
                 ctx.fill()
                 ctx.stroke()
             })
