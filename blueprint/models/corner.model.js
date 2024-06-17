@@ -13,7 +13,18 @@ export class Corner{
         Corner.corners.push({x:this.x, y:this.y, size:this.size})
     }
 
+    #inCorner(){
 
+    }
+
+    update(event){
+        const x = event.pageX
+        const y = event.pageY
+
+        if(this.#inCorner){
+
+        }
+    }
  
     static draw(ctx, offsetX, offsetY, scale){
         if(Corner.corners.length > 0){

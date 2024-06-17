@@ -22,8 +22,8 @@ export class CanvasDrawer {
       this.prevCursorY = 0;
   
       // distance from origin
-      this.offsetX = 0;
-      this.offsetY = 0;
+      this.offsetX = 0
+      this.offsetY = 0
   
       // zoom amount
       this.scale = 1;
@@ -31,8 +31,10 @@ export class CanvasDrawer {
       // mouse state
       this.leftMouseDown = false;
       this.rightMouseDown = false;
+
+      this.isMoving = false
   
-      this.grid = new Grid(this.canvas, this.context)
+      this.grid = new Grid(this.canvas, this.context, 50)
 
       this.init();
     }
@@ -62,7 +64,8 @@ export class CanvasDrawer {
       // set the canvas to the size of the window
       this.canvas.width = window.innerWidth;
       this.canvas.height = window.innerHeight;
-  
+
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
       this.grid.drawGrid(this.offsetX, this.offsetY, this.scale)
     
       for (let i = 0; i < this.drawings.length; i++) {
@@ -87,18 +90,17 @@ export class CanvasDrawer {
 
     onMouseDown(event) {
       // detect left clicks
-      if (event.button == 0) {
+      if (event.button === 0) {
         this.leftMouseDown = true;
         this.rightMouseDown = false;
       }
       // detect right clicks
-      if (event.button == 2) {
+      if (event.button === 2) {
         this.rightMouseDown = true;
         this.leftMouseDown = false;
       }
   
       // update the cursor coordinates
-      console.log(event.pageX, event.pageY)
       this.cursorX = event.pageX;
       this.cursorY = event.pageY;
       this.prevCursorX = event.pageX;
@@ -143,7 +145,7 @@ export class CanvasDrawer {
     }
   
     onMouseWheel(event) {
-        console.log(event)
+      console.log(event)
       const deltaY = event.deltaY;
       const scaleAmount = -deltaY / 500;
       this.scale = this.scale * (1 + scaleAmount);
@@ -151,7 +153,7 @@ export class CanvasDrawer {
       // zoom the page based on where the cursor is
       const distX = event.pageX / this.canvas.clientWidth;
       const distY = event.pageY / this.canvas.clientHeight;
-  
+      
       // calculate how much we need to zoom
       const unitsZoomedX = this.trueWidth() * scaleAmount;
       const unitsZoomedY = this.trueHeight() * scaleAmount;

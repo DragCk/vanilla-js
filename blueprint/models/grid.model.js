@@ -4,16 +4,11 @@ export class Grid {
       this.canvas = canvas;
       this.context = ctx;
       this.cellSize = cellSize;
-  
-      this.scale = 1;
-      this.offsetX = 0;
-      this.offsetY = 0;
-  
       this.isDragging = false;
-      this.lastMouseX = 0;
-      this.lastMouseY = 0;
-  
+
     }
+
+    
 
     drawGrid(offsetX, offsetY, scale) {
       if (this.canvas && this.context) {
@@ -29,6 +24,8 @@ export class Grid {
           const source = x;
           this.context.moveTo(source, 0);
           this.context.lineTo(source, height);
+
+          
           this.context.fillText(`${Utils.toVirtual(source, offsetX, scale).toFixed(0)}`, source, 10);
         }
   
@@ -39,6 +36,7 @@ export class Grid {
           this.context.fillText(`${Utils.toVirtual(destination, offsetY, scale).toFixed(0)}`, 0, destination);
         }
         this.context.stroke();
+        this.context.closePath()
       }
     }
   }
