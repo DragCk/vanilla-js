@@ -1,47 +1,49 @@
 import { Utils } from "./utils.model"
 
 export class Corner{
-    static corners = []
-
     constructor(position, color="red"){
         this.x = position.x, 
         this.y = position.y,
         this.color = color
-        this.size = 5
+        this.radius = 7
         this.isDragging = false
-        
-        Corner.corners.push({x:this.x, y:this.y, size:this.size})
+        this.isHover = false
+      
     }
 
-    #inCorner(){
+    #inCorner(x, y){
+        const shapeLeft = this.x
+        const shapeRight = this.x + this.radius
+        const shapeTop = this.y
+        const shapeBottom = this.y + this.radius
 
+        if(x > shapeLeft && x < shapeRight && y > shapeTop && y < shapeBottom)
+            return true
+
+        return false
     }
 
     update(event){
-        const x = event.pageX
-        const y = event.pageY
 
-        if(this.#inCorner){
+        if(this.#inCorner()){
 
         }
     }
  
-    static draw(ctx, offsetX, offsetY, scale){
-        if(Corner.corners.length > 0){
-            Corner.corners.map((c)=>{
-                ctx.beginPath()
-                ctx.arc(
-                    Utils.toScreen(c.x, offsetX, scale), 
-                    Utils.toScreen(c.y, offsetY, scale),
-                    c.size * scale, 
-                    0, 
-                    Math.PI*2
-                )
-                ctx.fillStyle= "red"
-                ctx.strokeStyle = "black"
-                ctx.fill()
-                ctx.stroke()
-            })
-        }
+
+    drawCorner(ctx, offset, scale){
+        ctx.beginPath()
+        ctx.arc(
+            Utils.toScreen(this.x, offset.x, scale), 
+            Utils.toScreen(this.y, offset.y, scale),
+            this.isHover ? this.radius * 1.5 * scale : this.radius * scale, 
+            0, 
+            Math.PI*2
+        )
+        ctx.fillStyle= "red"
+        ctx.strokeStyle = this.isHover ? "black" : "white"
+        ctx.lineWidth = 2
+        ctx.fill()
+        ctx.stroke()
     }
 }   

@@ -10,8 +10,6 @@ canvas.width = window.innerWidth
 const drawer = new CanvasDrawer(canvas, ctx)
 
 const animate= () => {
-
-   
     drawer.redrawCanvas()
     requestAnimationFrame(animate)
 }
