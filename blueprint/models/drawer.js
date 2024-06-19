@@ -18,6 +18,7 @@ export class CanvasDrawer {
       this.walls = []
       this.tempLine = null;
       this.prevCorner = null
+      this.movingShape = null
   
       // coordinates of our cursor
       this.cursor = {x:0, y:0}
@@ -33,10 +34,9 @@ export class CanvasDrawer {
       this.leftMouseDown = false;
       this.rightMouseDown = false;
 
-      
-
       //Canvas state
-      this.isMoving = false
+      this.movingMode = false
+      this.drawingMode = true
       this.isdrawingTemp = false
   
       this.grid = new Grid(this.canvas, this.ctx, 50)
@@ -65,9 +65,16 @@ export class CanvasDrawer {
 
       this.leftMouseDown = false;
       this.rightMouseDown = false;
-      this.isdrawingTemp = false
+
+      //clear temp drawing
+      this.isdrawingTemp = false;
       this.tempLine = null
       this.prevCorner = null
+
+      //Switch mode
+      this.movingMode = !this.movingMode
+      this.drawingMode = !this.drawingMode
+      console.table(this.movingMode, this.drawingMode)
     }
 
     trueHeight() {
@@ -79,21 +86,25 @@ export class CanvasDrawer {
     }
   
     redrawCanvas() {
-      // set the canvas to the size of the window
+      //Set the canvas to the size of the window
       this.canvas.width = window.innerWidth;
       this.canvas.height = window.innerHeight;
 
+      //Drawing grid
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
       this.grid.drawGrid(this.offset, this.scale)
 
+      //Drawing Walls
       for(let i=0 ; i<this.walls.length ; i++){
         this.walls[i].drawWall(this.ctx, this.offset, this.scale)
       }
 
+      //Drawing Corners
       for(let i=0 ; i<this.corners.length ; i++){
         this.corners[i].drawCorner(this.ctx, this.offset, this.scale)
       }
 
+      //Drawing TempLine
       if(this.tempLine !== null){
         this.drawTempLine(
           Utils.toScreen(this.tempLine.x0, this.offset.x, this.scale),
@@ -107,29 +118,40 @@ export class CanvasDrawer {
 
     onMouseClick(event){
         event.preventDefault()
-        
+        //Check if is Moving mode
+        if(!this.movingMode) return
+        const mousePos = {
+          x: Utils.toTrue(event.pageX, this.offset.x, this.scale),
+          y: Utils.toTrue(event.pageY, this.offset.y, this.scale)
+        }
+       
+        for(let i=0 ; i<this.corners.length ; i++){
+          const shape = this.corners[i].check(mousePos, this.offset, this.scale)
+          if(shape) console.log(shape)
+        }
     }
 
     onMouseDown(event) {
-      // detect left clicks
+      //Detect left clicks
       if (event.button === 0) {
         this.leftMouseDown = true;
         this.rightMouseDown = false;
       }
-      // detect right clicks
+      
+      //Detect right clicks
       if (event.button === 2) {
         this.rightMouseDown = true;
         this.leftMouseDown = false;
       }
   
-      
-      // update the cursor coordinates
+      //Update the cursor coordinates
       this.cursor.x = event.pageX;
       this.cursor.y = event.pageY;
       this.prevCursor.x = event.pageX;
       this.prevCursor.y = event.pageY;
 
-      if(!this.leftMouseDown) return
+      //Create Corner if in condition  
+      if(!this.leftMouseDown || !this.drawingMode) return
 
       const x = Utils.toTrue(event.pageX, this.offset.x, this.scale)
       const y = Utils.toTrue(event.pageY, this.offset.y, this.scale)
@@ -145,15 +167,15 @@ export class CanvasDrawer {
     }
   
     onMouseMove(event) {
-      // get mouse position
+      //Get mouse position
       this.cursor.x = event.pageX;
       this.cursor.y = event.pageY;
       
       const scaledX = Utils.toTrue(this.cursor.x, this.offset.x, this.scale);
       const scaledY = Utils.toTrue(this.cursor.y, this.offset.y, this.scale);
-  
-      if(this.isdrawingTemp) { 
-        // add the line to our drawing histsory
+      
+      //Add tempLine
+      if(this.drawingMode && this.isdrawingTemp) { 
         this.tempLine={
           x0: this.prevCorner.x,
           y0: this.prevCorner.y,
@@ -162,7 +184,7 @@ export class CanvasDrawer {
         };
       }
 
-      if(this.rightMouseDown) {
+      if(this.rightMouseDown && this.movingMode) {
         // move the screen
         this.offset.x += (this.cursor.x - this.prevCursor.x) / this.scale;
         this.offset.y += (this.cursor.y - this.prevCursor.y) / this.scale;
@@ -180,7 +202,7 @@ export class CanvasDrawer {
   
     onMouseWheel(event) {
       const deltaY = event.deltaY;
-      let scaleAmount = -deltaY / 500;
+      let scaleAmount = -deltaY / 1000;
       
       this.scale = this.scale * (1 + scaleAmount);
       if(this.scale > 3){

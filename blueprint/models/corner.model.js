@@ -1,33 +1,37 @@
+
 import { Utils } from "./utils.model"
 
 export class Corner{
     constructor(position, color="red"){
-        this.x = position.x, 
-        this.y = position.y,
+        this.x = position.x
+        this.y = position.y
         this.color = color
         this.radius = 7
         this.isDragging = false
         this.isHover = false
-      
+        this.name = Math.floor(Math.random() * 100)
     }
 
-    #inCorner(x, y){
-        const shapeLeft = this.x
-        const shapeRight = this.x + this.radius
-        const shapeTop = this.y
-        const shapeBottom = this.y + this.radius
+    #inCorner(mousepos, offset, scale){
 
-        if(x > shapeLeft && x < shapeRight && y > shapeTop && y < shapeBottom)
+        const cornerPos = {x: this.x, y: this.y}
+        const distance = Utils.distance(cornerPos, mousepos)
+        const radius = this.radius * scale
+
+        if( distance < radius )
             return true
 
         return false
     }
 
-    update(event){
+    check(mousepos, offset, scale){
 
-        if(this.#inCorner()){
+        if(!this.#inCorner(mousepos, offset, scale)) return
 
-        }
+        this.isHover = !this.isHover
+        this.isDragging = !this.isDragging
+        
+        return(this)
     }
  
 
