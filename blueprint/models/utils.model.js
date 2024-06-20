@@ -5,6 +5,26 @@ export class Utils{
         return result
     }
 
+    static calculateRelativeDistances(mousePos, point) {
+        const mouseOffset = {
+            x: mousePos.x - point.x,
+            y: mousePos.y - point.y
+        };
+    
+        return  mouseOffset;
+    }
+    static isPointNearLine(mousePos, start, end, lineWidth) {
+        // 计算点到线段的距离
+        const numerator = Math.abs((end.y - start.y) * mousePos.x - (end.x - start.x) * mousePos.y + end.x * start.y - end.y * start.x);
+        const denominator = Math.sqrt(Math.pow(end.y - start.y, 2) + Math.pow(end.x - start.x, 2));
+        const distance = numerator / denominator;
+    
+        // 如果距离小于等于线段宽度的一半，则认为点在线段上
+        return distance <= (lineWidth / 2);
+    }
+
+
+    
     static lerp(A, B, t) {
         return A+(B-A)*t
     }

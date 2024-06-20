@@ -16,9 +16,10 @@ export class CanvasDrawer {
       // list of all drawing
       this.corners = []
       this.walls = []
+      this.movingShape = []
       this.tempLine = null;
       this.prevCorner = null
-      this.movingShape = null
+      
   
       // coordinates of our cursor
       this.cursor = {x:0, y:0}
@@ -34,9 +35,10 @@ export class CanvasDrawer {
       this.leftMouseDown = false;
       this.rightMouseDown = false;
 
-      //Canvas state
+      //Canvas state 
       this.movingMode = false
       this.drawingMode = true
+      this.isDraggingShape = false
       this.isdrawingTemp = false
   
       this.grid = new Grid(this.canvas, this.ctx, 50)
@@ -120,15 +122,58 @@ export class CanvasDrawer {
         event.preventDefault()
         //Check if is Moving mode
         if(!this.movingMode) return
+        
         const mousePos = {
           x: Utils.toTrue(event.pageX, this.offset.x, this.scale),
           y: Utils.toTrue(event.pageY, this.offset.y, this.scale)
         }
-       
+        
+        if(this.movingShape.length > 0) this.movingShape = []
+
+        //Check if is in any shape
         for(let i=0 ; i<this.corners.length ; i++){
-          const shape = this.corners[i].check(mousePos, this.offset, this.scale)
-          if(shape) console.log(shape)
+          const cornerShape = this.corners[i].mouseCheck(mousePos, this.scale)
+          if(cornerShape) {
+            this.movingShape.push(cornerShape)
+            for(let j=0 ; j<this.walls.length ; j++){
+              const wallShape = this.walls[j].cornerCheck(cornerShape)
+              if(wallShape) {
+                this.walls[j].movingCorner = wallShape
+                this.movingShape.push(this.walls[j])
+              }
+            }
+            return
+          }
         }
+
+        
+        
+        const wallIndex = this.walls.findIndex(wall => wall.mouseCheck(mousePos, this.scale));
+        if (wallIndex !== -1) {
+          this.walls[wallIndex].movingCorner = "both";
+          this.movingShape.push(this.walls[wallIndex]);
+          const mainWallStart = {
+            x:this.walls[wallIndex].start.x,
+            y:this.walls[wallIndex].start.y,
+          }
+          const mainWallEnd = {
+            x:this.walls[wallIndex].end.x,
+            y:this.walls[wallIndex].end.y,
+          }
+       
+         
+          for(let i=0 ; i<this.walls.length ; i++){
+            if(i === wallIndex) continue
+            const wall = this.walls[i].cornerCheck(mainWallStart) || this.walls[i].cornerCheck(mainWallEnd)
+            if(wall) {
+              this.walls[i].movingCorner = wall
+              this.movingShape.push(this.walls[i])
+            }
+          }
+        }
+
+        console.log(this.movingShape)
+      
     }
 
     onMouseDown(event) {
@@ -171,9 +216,15 @@ export class CanvasDrawer {
       this.cursor.x = event.pageX;
       this.cursor.y = event.pageY;
       
+      if(this.movingShape.length > 0) {
+        for(let i=0 ; i<this.movingShape.length ; i++){
+          this.movingShape[i].update(this.cursor, this.offset, this.scale)
+        }
+      }
+
       const scaledX = Utils.toTrue(this.cursor.x, this.offset.x, this.scale);
       const scaledY = Utils.toTrue(this.cursor.y, this.offset.y, this.scale);
-      
+    
       //Add tempLine
       if(this.drawingMode && this.isdrawingTemp) { 
         this.tempLine={
@@ -240,5 +291,6 @@ export class CanvasDrawer {
       this.ctx.closePath()
     }
   }
+
 
   
