@@ -22,10 +22,12 @@ export class CanvasDrawer {
       
   
       // coordinates of our cursor
-      this.cursor = {x:0, y:0}
-      this.prevCursor = {x:0, y:0}
+      this.mousePos = {x:0, y:0}
+      this.prevMousePos = {x:0, y:0}
+      this.mouseOffsetWall = {sx:0, sy:0, ex:0, ey:0}
 
       // distance from origin
+     
       this.offset = {x:0, y:0}
 
       // zoom amount
@@ -120,6 +122,7 @@ export class CanvasDrawer {
 
     onMouseClick(event){
         event.preventDefault()
+        event.stopPropagation()
         //Check if is Moving mode
         if(!this.movingMode) return
         
@@ -145,34 +148,33 @@ export class CanvasDrawer {
             return
           }
         }
-
         
-        
-        const wallIndex = this.walls.findIndex(wall => wall.mouseCheck(mousePos, this.scale));
-        if (wallIndex !== -1) {
+        const wallIndex = Utils.closestWall(mousePos, this.walls);
+        if (wallIndex !== undefined) {
+          this.walls[wallIndex].isDragging = true
           this.walls[wallIndex].movingCorner = "both";
           this.movingShape.push(this.walls[wallIndex]);
-          const mainWallStart = {
-            x:this.walls[wallIndex].start.x,
-            y:this.walls[wallIndex].start.y,
+
+          const mainWall = this.walls[wallIndex]
+          
+          this.mouseOffsetWall = {
+            sx: mainWall.start.x - mousePos.x,
+            sy: mainWall.start.y - mousePos.y,
+            ex: mainWall.end.x - mousePos.x,
+            ey: mainWall.end.y - mousePos.y
           }
-          const mainWallEnd = {
-            x:this.walls[wallIndex].end.x,
-            y:this.walls[wallIndex].end.y,
-          }
-       
+          
          
           for(let i=0 ; i<this.walls.length ; i++){
             if(i === wallIndex) continue
-            const wall = this.walls[i].cornerCheck(mainWallStart) || this.walls[i].cornerCheck(mainWallEnd)
+            const wall = this.walls[i].cornerCheck(mainWall.start) || this.walls[i].cornerCheck(mainWall.end)
             if(wall) {
               this.walls[i].movingCorner = wall
               this.movingShape.push(this.walls[i])
             }
           }
         }
-
-        console.log(this.movingShape)
+        
       
     }
 
@@ -190,10 +192,10 @@ export class CanvasDrawer {
       }
   
       //Update the cursor coordinates
-      this.cursor.x = event.pageX;
-      this.cursor.y = event.pageY;
-      this.prevCursor.x = event.pageX;
-      this.prevCursor.y = event.pageY;
+      this.mousePos.x = event.pageX;
+      this.mousePos.y = event.pageY;
+      this.prevMousePos.x = event.pageX;
+      this.prevMousePos.y = event.pageY;
 
       //Create Corner if in condition  
       if(!this.leftMouseDown || !this.drawingMode) return
@@ -213,17 +215,18 @@ export class CanvasDrawer {
   
     onMouseMove(event) {
       //Get mouse position
-      this.cursor.x = event.pageX;
-      this.cursor.y = event.pageY;
+      this.mousePos.x = event.pageX;
+      this.mousePos.y = event.pageY;
       
       if(this.movingShape.length > 0) {
         for(let i=0 ; i<this.movingShape.length ; i++){
-          this.movingShape[i].update(this.cursor, this.offset, this.scale)
+        
+          this.movingShape[i].update(this.mousePos, this.offset, this.scale, this.mouseOffsetWall)
         }
       }
 
-      const scaledX = Utils.toTrue(this.cursor.x, this.offset.x, this.scale);
-      const scaledY = Utils.toTrue(this.cursor.y, this.offset.y, this.scale);
+      const scaledX = Utils.toTrue(this.mousePos.x, this.offset.x, this.scale);
+      const scaledY = Utils.toTrue(this.mousePos.y, this.offset.y, this.scale);
     
       //Add tempLine
       if(this.drawingMode && this.isdrawingTemp) { 
@@ -237,18 +240,19 @@ export class CanvasDrawer {
 
       if(this.rightMouseDown && this.movingMode) {
         // move the screen
-        this.offset.x += (this.cursor.x - this.prevCursor.x) / this.scale;
-        this.offset.y += (this.cursor.y - this.prevCursor.y) / this.scale;
+        this.offset.x += (this.mousePos.x - this.prevMousePos.x) / this.scale;
+        this.offset.y += (this.mousePos.y - this.prevMousePos.y) / this.scale;
         this.redrawCanvas();
       }
       
-      this.prevCursor.x = this.cursor.x;
-      this.prevCursor.y = this.cursor.y;
+      this.prevMousePos.x = this.mousePos.x;
+      this.prevMousePos.y = this.mousePos.y;
     }
   
     onMouseUp() {
       this.leftMouseDown = false;
       this.rightMouseDown = false;
+      
     }
   
     onMouseWheel(event) {
