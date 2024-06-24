@@ -47,6 +47,7 @@ export class Wall{
                 y: Utils.toTrue(follow ? originWall.sy : originWall.ey, offset.y, scale)
             }  
         }
+
         if(this.movingCorner === "end" ){
             if(mouseOffsetWall.ex === 0 && mouseOffsetWall.ey === 0){
                 this.end = { 
@@ -72,28 +73,26 @@ export class Wall{
                 x: Utils.toTrue(originWall.ex , offset.x, scale) , 
                 y: Utils.toTrue(originWall.ey , offset.y, scale)
             }   
-            
         }
-
 
     }
 
     mouseCheck(mousePos, scale){
-         if(!Utils.isPointNearLine(mousePos, this.start, this.end, this.lineWidth * scale)) return
+        if(!Utils.isPointNearLine(mousePos, this.start, this.end, this.lineWidth * scale)) return
 
-        this.isHover = !this.isHover
-        this.isDragging = !this.isDragging
+        this.isHover = true
+        this.isDragging = true
 
         return(this)
     }
     cornerCheck(corner){
 
         if(this.start.x == corner.x && this.start.y == corner.y){
-            this.isDragging = !this.isDragging
+            this.isDragging = true
             return "start"
         }
         if(this.end.x == corner.x && this.end.y == corner.y) {
-            this.isDragging = !this.isDragging   
+            this.isDragging = true 
             return "end"
         }
         return false

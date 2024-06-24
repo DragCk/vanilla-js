@@ -40,6 +40,7 @@ export class CanvasDrawer {
       //Canvas state 
       this.movingMode = false
       this.drawingMode = true
+      this.editMode = false
       this.isDraggingShape = false
       this.isdrawingTemp = false
   
@@ -78,7 +79,8 @@ export class CanvasDrawer {
       //Switch mode
       this.movingMode = !this.movingMode
       this.drawingMode = !this.drawingMode
-      console.table(this.movingMode, this.drawingMode)
+      this.editMode = !this.editMode
+      
     }
 
     trueHeight() {
@@ -123,59 +125,6 @@ export class CanvasDrawer {
     onMouseClick(event){
         event.preventDefault()
         event.stopPropagation()
-        //Check if is Moving mode
-        if(!this.movingMode) return
-        
-        const mousePos = {
-          x: Utils.toTrue(event.pageX, this.offset.x, this.scale),
-          y: Utils.toTrue(event.pageY, this.offset.y, this.scale)
-        }
-        
-        if(this.movingShape.length > 0) this.movingShape = []
-
-        //Check if is in any shape
-        for(let i=0 ; i<this.corners.length ; i++){
-          const cornerShape = this.corners[i].mouseCheck(mousePos, this.scale)
-          if(cornerShape) {
-            this.movingShape.push(cornerShape)
-            for(let j=0 ; j<this.walls.length ; j++){
-              const wallShape = this.walls[j].cornerCheck(cornerShape)
-              if(wallShape) {
-                this.walls[j].movingCorner = wallShape
-                this.movingShape.push(this.walls[j])
-              }
-            }
-            return
-          }
-        }
-        
-        const wallIndex = Utils.closestWall(mousePos, this.walls);
-        if (wallIndex !== undefined) {
-          this.walls[wallIndex].isDragging = true
-          this.walls[wallIndex].movingCorner = "both";
-          this.movingShape.push(this.walls[wallIndex]);
-
-          const mainWall = this.walls[wallIndex]
-          
-          this.mouseOffsetWall = {
-            sx: mainWall.start.x - mousePos.x,
-            sy: mainWall.start.y - mousePos.y,
-            ex: mainWall.end.x - mousePos.x,
-            ey: mainWall.end.y - mousePos.y
-          }
-          
-         
-          for(let i=0 ; i<this.walls.length ; i++){
-            if(i === wallIndex) continue
-            const wall = this.walls[i].cornerCheck(mainWall.start) || this.walls[i].cornerCheck(mainWall.end)
-            if(wall) {
-              this.walls[i].movingCorner = wall
-              this.movingShape.push(this.walls[i])
-            }
-          }
-        }
-        
-      
     }
 
     onMouseDown(event) {
@@ -197,20 +146,80 @@ export class CanvasDrawer {
       this.prevMousePos.x = event.pageX;
       this.prevMousePos.y = event.pageY;
 
-      //Create Corner if in condition  
-      if(!this.leftMouseDown || !this.drawingMode) return
-
-      const x = Utils.toTrue(event.pageX, this.offset.x, this.scale)
-      const y = Utils.toTrue(event.pageY, this.offset.y, this.scale)
-
-      const corner = new Corner({x,y})
-      this.corners.push(corner)
-      if(this.prevCorner !== null){
-        const wall = new Wall(this.prevCorner, corner)
-        this.walls.push(wall)
+      const mousePos = {
+        x: Utils.toTrue(event.pageX, this.offset.x, this.scale),
+        y: Utils.toTrue(event.pageY, this.offset.y, this.scale)
       }
-      this.prevCorner = corner
-      this.isdrawingTemp = true
+
+      //Create Corner if in condition  
+      if(this.leftMouseDown && this.drawingMode){
+        const corner = new Corner(mousePos)
+        this.corners.push(corner)
+        if(this.prevCorner !== null){
+          const wall = new Wall(this.prevCorner, corner)
+          this.walls.push(wall)
+        }
+        this.prevCorner = corner
+        this.isdrawingTemp = true
+      }
+
+
+      //EditMode
+      if(this.leftMouseDown && this.editMode){
+      if(this.movingShape.length > 0) this.movingShape = []
+
+        //Check if is in any corner
+        for(let i=0 ; i<this.corners.length ; i++){
+          const cornerShape = this.corners[i].mouseCheck(mousePos, this.scale)
+          if(cornerShape) {
+            this.movingShape.push(cornerShape)
+            for(let j=0 ; j<this.walls.length ; j++){
+              const wallShape = this.walls[j].cornerCheck(cornerShape)
+              if(wallShape) {
+                this.walls[j].movingCorner = wallShape
+                this.movingShape.push(this.walls[j])
+              }
+            }
+            return
+          }
+        }
+        
+        //Check if is in any wall
+        const wallIndex = Utils.closestWall(mousePos, this.walls);
+        if (wallIndex !== undefined) {
+          this.walls[wallIndex].isDragging = true
+          this.walls[wallIndex].movingCorner = "both";
+          this.movingShape.push(this.walls[wallIndex]);
+
+          const mainWall = this.walls[wallIndex]
+          
+          this.mouseOffsetWall = {
+            sx: mainWall.start.x - mousePos.x,
+            sy: mainWall.start.y - mousePos.y,
+            ex: mainWall.end.x - mousePos.x,
+            ey: mainWall.end.y - mousePos.y
+          }
+          
+          for(let i=0 ; i<this.corners.length ; i++){
+            const corner = this.corners[i]
+            if(corner.x === mainWall.start.x && corner.y === mainWall.start.y ||
+              corner.x === mainWall.end.x && corner.y === mainWall.end.y)
+            {
+              corner.isDragging = true
+              this.movingShape.push(corner) 
+            }
+          }
+
+          for(let i=0 ; i<this.walls.length ; i++){
+            if(i === wallIndex) continue
+            const wall = this.walls[i].cornerCheck(mainWall.start) || this.walls[i].cornerCheck(mainWall.end)
+            if(wall) {
+              this.walls[i].movingCorner = wall
+              this.movingShape.push(this.walls[i])
+            }
+          }
+        }
+      }
     }
   
     onMouseMove(event) {
@@ -220,7 +229,6 @@ export class CanvasDrawer {
       
       if(this.movingShape.length > 0) {
         for(let i=0 ; i<this.movingShape.length ; i++){
-        
           this.movingShape[i].update(this.mousePos, this.offset, this.scale, this.mouseOffsetWall)
         }
       }
@@ -253,6 +261,17 @@ export class CanvasDrawer {
       this.leftMouseDown = false;
       this.rightMouseDown = false;
       
+      for(let i=0 ; i<this.corners.length ; i++){
+        this.corners[i].isDragging = false
+        this.corners[i].isHover = false
+      }
+
+      for(let i=0 ; i<this.walls.length ; i++){
+        this.walls[i].isDragging = false 
+      }
+
+      this.mouseOffsetWall = {sx:0, sy:0, ex:0, ey:0}
+      this.movingShape = []
     }
   
     onMouseWheel(event) {
