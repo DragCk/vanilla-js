@@ -22,16 +22,21 @@ export class Corner{
         return false
     }
 
-    checkFollowTo(wall, scale){
-        console.log(`${this.name} x:${this.x} y:${this.y}`)
-        const ds = Utils.distance({x:wall.sx,y:wall.sy}, {x:this.x,y:this.y})
-        const de = Utils.distance({x:wall.ex,y:wall.ey}, {x:this.x,y:this.y})
+    checkFollowTo(wall, offset, scale){
+        const mainPoint = {
+            x: Utils.toScreen(this.x, offset.x, scale),
+            y: Utils.toScreen(this.y, offset.y, scale)
+        }
+        
+        const ds = Utils.distance(mainPoint, {x:wall.sx,y:wall.sy})
+        const de = Utils.distance(mainPoint, {x:wall.ex,y:wall.ey})
         
         if(ds < de){
             return true
+        }else if(de < ds){
+            return false
         }
-        return  false
-        
+        console.log("wall out of range")
     }
 
     mouseCheck(mousePos, scale){
@@ -46,12 +51,13 @@ export class Corner{
  
     update(mousePos, offset, scale, mouseOffsetWall){
         const originWall = {
-            sx: mousePos.x + mouseOffsetWall.sx,
-            sy: mousePos.y + mouseOffsetWall.sy,
-            ex: mousePos.x + mouseOffsetWall.ex,
-            ey: mousePos.y + mouseOffsetWall.ey
+            sx: Utils.toScreen(Utils.toTrue(mousePos.x, offset.x, scale) + mouseOffsetWall.sx, offset.x, scale),
+            sy: Utils.toScreen(Utils.toTrue(mousePos.y, offset.y, scale) + mouseOffsetWall.sy, offset.y, scale),
+            ex: Utils.toScreen(Utils.toTrue(mousePos.x, offset.x, scale) + mouseOffsetWall.ex, offset.x, scale),
+            ey: Utils.toScreen(Utils.toTrue(mousePos.y, offset.y, scale) + mouseOffsetWall.ey, offset.y, scale)
         }
-        console.log(originWall)
+
+        
         if(!this.isDragging) return
         
         if( mouseOffsetWall.sx === 0 && 
@@ -62,10 +68,9 @@ export class Corner{
             this.x = Utils.toTrue(mousePos.x, offset.x, scale)
             this.y = Utils.toTrue(mousePos.y, offset.y, scale)
         }else{
-            const follow = this.checkFollowTo(originWall, scale)
+            const follow = this.checkFollowTo(originWall, offset, scale)
             this.x = Utils.toTrue(follow ? originWall.sx : originWall.ex, offset.x, scale)
             this.y = Utils.toTrue(follow ? originWall.sy : originWall.ey, offset.y, scale)
-        
         }
     }
 

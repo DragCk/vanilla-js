@@ -17,6 +17,7 @@ export class CanvasDrawer {
       this.corners = []
       this.walls = []
       this.movingShape = []
+      this.mainWall = null
       this.tempLine = null;
       this.prevCorner = null
       
@@ -27,7 +28,6 @@ export class CanvasDrawer {
       this.mouseOffsetWall = {sx:0, sy:0, ex:0, ey:0}
 
       // distance from origin
-     
       this.offset = {x:0, y:0}
 
       // zoom amount
@@ -59,7 +59,6 @@ export class CanvasDrawer {
       this.canvas.addEventListener("mouseout", this.onMouseUp.bind(this));
       this.canvas.addEventListener("mousemove", this.onMouseMove.bind(this));
       this.canvas.addEventListener("wheel", this.onMouseWheel.bind(this));
-      this.canvas.addEventListener("click", this.onMouseClick.bind(this))
 
       //Windows Event Handlers
       document.addEventListener("keydown", this.onKeyDown.bind(this))
@@ -122,10 +121,6 @@ export class CanvasDrawer {
       
     }
 
-    onMouseClick(event){
-        event.preventDefault()
-        event.stopPropagation()
-    }
 
     onMouseDown(event) {
       //Detect left clicks
@@ -150,7 +145,7 @@ export class CanvasDrawer {
         x: Utils.toTrue(event.pageX, this.offset.x, this.scale),
         y: Utils.toTrue(event.pageY, this.offset.y, this.scale)
       }
-
+      
       //Create Corner if in condition  
       if(this.leftMouseDown && this.drawingMode){
         const corner = new Corner(mousePos)
@@ -190,20 +185,22 @@ export class CanvasDrawer {
           this.walls[wallIndex].isDragging = true
           this.walls[wallIndex].movingCorner = "both";
           this.movingShape.push(this.walls[wallIndex]);
+          
+          this.mainWall = this.walls[wallIndex]
 
-          const mainWall = this.walls[wallIndex]
           
           this.mouseOffsetWall = {
-            sx: mainWall.start.x - mousePos.x,
-            sy: mainWall.start.y - mousePos.y,
-            ex: mainWall.end.x - mousePos.x,
-            ey: mainWall.end.y - mousePos.y
+            sx: this.mainWall.start.x - mousePos.x,
+            sy: this.mainWall.start.y - mousePos.y,
+            ex: this.mainWall.end.x - mousePos.x,          
+            ey: this.mainWall.end.y - mousePos.y,      
           }
+          
           
           for(let i=0 ; i<this.corners.length ; i++){
             const corner = this.corners[i]
-            if(corner.x === mainWall.start.x && corner.y === mainWall.start.y ||
-              corner.x === mainWall.end.x && corner.y === mainWall.end.y)
+            if(corner.x === this.mainWall.start.x && corner.y === this.mainWall.start.y ||
+              corner.x === this.mainWall.end.x && corner.y === this.mainWall.end.y)
             {
               corner.isDragging = true
               this.movingShape.push(corner) 
@@ -212,7 +209,7 @@ export class CanvasDrawer {
 
           for(let i=0 ; i<this.walls.length ; i++){
             if(i === wallIndex) continue
-            const wall = this.walls[i].cornerCheck(mainWall.start) || this.walls[i].cornerCheck(mainWall.end)
+            const wall = this.walls[i].cornerCheck(this.mainWall.start) || this.walls[i].cornerCheck(this.mainWall.end)
             if(wall) {
               this.walls[i].movingCorner = wall
               this.movingShape.push(this.walls[i])
@@ -226,7 +223,7 @@ export class CanvasDrawer {
       //Get mouse position
       this.mousePos.x = event.pageX;
       this.mousePos.y = event.pageY;
-      
+
       if(this.movingShape.length > 0) {
         for(let i=0 ; i<this.movingShape.length ; i++){
           this.movingShape[i].update(this.mousePos, this.offset, this.scale, this.mouseOffsetWall)
@@ -268,10 +265,13 @@ export class CanvasDrawer {
 
       for(let i=0 ; i<this.walls.length ; i++){
         this.walls[i].isDragging = false 
+        this.walls[i].isHover = false 
       }
 
       this.mouseOffsetWall = {sx:0, sy:0, ex:0, ey:0}
       this.movingShape = []
+      this.mainWall = null
+      
     }
   
     onMouseWheel(event) {
@@ -302,14 +302,18 @@ export class CanvasDrawer {
       this.offset.y -= unitsAddTop;
   
       this.redrawCanvas();
+      
     }
   
     drawTempLine(x0, y0, x1, y1) {
+      const distance = Utils.distance({x: x0, y: y0}, {x: x1, y: y1});
       this.ctx.beginPath();
       this.ctx.moveTo(x0, y0);
       this.ctx.lineTo(x1, y1);
       this.ctx.strokeStyle = "red";
       this.ctx.lineWidth = 3 * this.scale;
+      this.ctx.font = `${15 * this.scale}px arial`;
+      this.ctx.fillText(distance.toFixed(0), (x0 + x1) / 2, (y0 + y1) / 2);
       this.ctx.stroke();
       this.ctx.closePath()
     }
