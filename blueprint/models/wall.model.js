@@ -47,6 +47,7 @@ export class Wall{
                     x: Utils.toTrue(mousePos.x, offset.x, scale), 
                     y: Utils.toTrue(mousePos.y, offset.y, scale)
                 }  
+                return
             }
 
             const follow = this.checkFollowTo(this.start, originWall, offset, scale)
@@ -62,6 +63,7 @@ export class Wall{
                     x: Utils.toTrue(mousePos.x, offset.x, scale), 
                     y: Utils.toTrue(mousePos.y, offset.y, scale)
                 }   
+                return
             }
             
             const follow = this.checkFollowTo(this.end, originWall, offset, scale)

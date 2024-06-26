@@ -148,14 +148,22 @@ export class CanvasDrawer {
       
       //Create Corner if in condition  
       if(this.leftMouseDown && this.drawingMode){
-        const corner = new Corner(mousePos)
-        this.corners.push(corner)
+        //if mousePos already in corner array, 
+        const existCorner = this.corners.find(corner => corner.mouseCheck(mousePos, this.scale))
+        let corner
+        if(!existCorner){
+          corner = new Corner(mousePos)
+          this.corners.push(corner)
+          
+        }
+
         if(this.prevCorner !== null){
-          const wall = new Wall(this.prevCorner, corner)
+          const wall = new Wall(this.prevCorner, existCorner ? existCorner : corner)
           this.walls.push(wall)
         }
-        this.prevCorner = corner
-        this.isdrawingTemp = true
+        
+        this.prevCorner = existCorner ? existCorner : corner
+        this.isdrawingTemp = true 
       }
 
 
