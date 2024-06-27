@@ -47,8 +47,7 @@ export class Utils{
 
         return index;
     }
-
-
+    
     static closestXY(wall, mousePos) {
         let x0 = wall.start.x;
         let y0 = wall.start.y;
@@ -69,10 +68,6 @@ export class Utils{
     
     static toTrue(screen, offset, scale) {
         return screen / scale - offset;
-    }
-
-    static toVirtual(real, offset, scale = 1) {
-        return (real - offset) * scale;
     }
     
     static toPolar =({x, y}) => {

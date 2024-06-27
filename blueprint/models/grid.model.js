@@ -24,14 +24,14 @@ export class Grid {
           this.context.lineTo(source, height);
 
           
-          this.context.fillText(`${Utils.toVirtual(source, offset.x, scale).toFixed(0)}`, source, 10);
+          this.context.fillText(`${Utils.toTrue(source, offset.x, scale).toFixed(0)}`, source, 10);
         }
-  
+
         for (let y = (offset.y % this.cellSize) * scale; y <= height; y += this.cellSize * scale) {
           const destination = y;
           this.context.moveTo(0, destination);
           this.context.lineTo(width, destination);
-          this.context.fillText(`${Utils.toVirtual(destination, offset.y, scale).toFixed(0)}`, 0, destination);
+          this.context.fillText(`${Utils.toTrue(destination, offset.y, scale).toFixed(0)}`, 0, destination);
         }
         this.context.stroke();
         this.context.closePath()

@@ -2,6 +2,7 @@
 import { Utils } from "./utils.model"
 
 export class Corner{
+    static cornerCount = 0
     constructor(position, color="red"){
         this.x = position.x
         this.y = position.y
@@ -9,7 +10,9 @@ export class Corner{
         this.radius = 7
         this.isDragging = false
         this.isHover = false
-        this.name = Math.floor(Math.random() * 100)
+        
+        this.cornerId = Corner.cornerCount
+        Corner.cornerCount++
     }
 
     #inCorner(mousePos, scale){

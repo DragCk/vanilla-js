@@ -1,6 +1,7 @@
 import { Utils } from "./utils.model"
 
 export class Wall{
+    static wallCount = 0
     constructor(start, end, color="blue"){
         this.start = { x:start.x, y:start.y }
         this.end = { x:end.x, y:end.y }
@@ -10,7 +11,9 @@ export class Wall{
         this.movingCorner = null
         this.isDragging = false
         this.isHover = false
-        this.name = Math.floor(Math.random() * 100)
+
+        this.wallId = Wall.wallCount
+        Wall.wallCount++
     }
 
     checkFollowTo(point, originWall, offset, scale){
@@ -85,6 +88,15 @@ export class Wall{
             }   
         }
 
+    }
+
+    checkIfWallExists(newWall){
+       if(newWall.start.x === this.start.x && newWall.start.y === this.start.y && 
+        newWall.end.x === this.end.x && newWall.end.y === this.end.y) return true
+       if(newWall.end.x === this.start.x && newWall.end.y === this.start.y && 
+        newWall.start.x === this.end.x && newWall.start.y === this.end.y) return true
+
+       return false
     }
 
     mouseCheck(mousePos, scale){

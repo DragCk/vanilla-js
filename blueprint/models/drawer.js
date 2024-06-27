@@ -118,7 +118,6 @@ export class CanvasDrawer {
           Utils.toScreen(this.tempLine.y1, this.offset.y, this.scale)
         );
       }
-      
     }
 
 
@@ -150,19 +149,19 @@ export class CanvasDrawer {
       if(this.leftMouseDown && this.drawingMode){
         //if mousePos already in corner array, 
         const existCorner = this.corners.find(corner => corner.mouseCheck(mousePos, this.scale))
-        let corner
+        let newCorner
         if(!existCorner){
-          corner = new Corner(mousePos)
-          this.corners.push(corner)
-          
+          newCorner = new Corner(mousePos)
+          this.corners.push(newCorner)
         }
 
         if(this.prevCorner !== null){
-          const wall = new Wall(this.prevCorner, existCorner ? existCorner : corner)
-          this.walls.push(wall)
+          const newWall = new Wall(this.prevCorner, existCorner ? existCorner : newCorner)
+          const existWall = this.walls.find(wall => wall.checkIfWallExists(newWall))
+          if(!existWall)  this.walls.push(newWall)
         }
         
-        this.prevCorner = existCorner ? existCorner : corner
+        this.prevCorner = existCorner ? existCorner : newCorner
         this.isdrawingTemp = true 
       }
 
@@ -196,14 +195,12 @@ export class CanvasDrawer {
           
           this.mainWall = this.walls[wallIndex]
 
-          
           this.mouseOffsetWall = {
             sx: this.mainWall.start.x - mousePos.x,
             sy: this.mainWall.start.y - mousePos.y,
             ex: this.mainWall.end.x - mousePos.x,          
             ey: this.mainWall.end.y - mousePos.y,      
           }
-          
           
           for(let i=0 ; i<this.corners.length ; i++){
             const corner = this.corners[i]
@@ -266,6 +263,8 @@ export class CanvasDrawer {
       this.leftMouseDown = false;
       this.rightMouseDown = false;
       
+
+
       for(let i=0 ; i<this.corners.length ; i++){
         this.corners[i].isDragging = false
         this.corners[i].isHover = false
