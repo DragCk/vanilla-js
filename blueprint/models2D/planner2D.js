@@ -3,7 +3,7 @@ import { Corner } from "./corner.model";
 import { Utils } from "./utils.model";
 import { Grid } from "./grid.model";
 import { Wall } from "./wall.model";
-export class CanvasDrawer {
+export class Planner2D {
     constructor(canvas, ctx) {
       this.canvas = canvas;
       this.ctx = ctx;
@@ -37,6 +37,10 @@ export class CanvasDrawer {
       this.leftMouseDown = false;
       this.rightMouseDown = false;
 
+      //button
+      this.drawButton = document.getElementById("drawButton")
+      this.editButton = document.getElementById("editButton")
+
       //Canvas state 
       this.movingMode = false
       this.drawingMode = true
@@ -44,6 +48,8 @@ export class CanvasDrawer {
       this.isDraggingShape = false
       this.isdrawingTemp = false
   
+
+      
       this.grid = new Grid(this.canvas, this.ctx, 50)
 
       this.init();
@@ -60,6 +66,9 @@ export class CanvasDrawer {
       this.canvas.addEventListener("mousemove", this.onMouseMove.bind(this));
       this.canvas.addEventListener("wheel", this.onMouseWheel.bind(this));
 
+      //Button Event Handlers
+      this.drawButton.addEventListener('click', () => {console.log("DrawButton clicked")})
+      this.editButton.addEventListener('click', () => {console.log("EditButton clicked")})
       //Windows Event Handlers
       document.addEventListener("keydown", this.onKeyDown.bind(this))
     }
@@ -155,6 +164,7 @@ export class CanvasDrawer {
           this.corners.push(newCorner)
         }
 
+        //Create wall if there is a prevCorner
         if(this.prevCorner !== null){
           const newWall = new Wall(this.prevCorner, existCorner ? existCorner : newCorner)
           const existWall = this.walls.find(wall => wall.checkIfWallExists(newWall))
@@ -312,6 +322,10 @@ export class CanvasDrawer {
       
     }
   
+    animate() {
+      requestAnimationFrame(this.animate.bind(this));
+      this.redrawCanvas();
+    }
     drawTempLine(x0, y0, x1, y1) {
       const distance = Utils.distance({x: x0, y: y0}, {x: x1, y: y1});
       this.ctx.beginPath();

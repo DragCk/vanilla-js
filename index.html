@@ -7,6 +7,21 @@
     <title>Vite App</title>
   </head>
   <body>
+    <div class="draggable-window" id="draggableWindow">
+      <div class="window-header">
+          <h3>可拖拽視窗</h3>
+          <button id="toggleButton">▲</button>
+      </div>
+      <div class="window-content">
+          <button id="view-mode">View 2D/3D</button>
+          <div id="panelPlanner2d" class="panel-planner2d">
+            <button id="drawButton">DRAW</button>
+            <button id="editButton">EDIT</button>
+            <button></button>
+          </div>
+          
+      </div>
+    </div>
     <canvas id="canvas"></canvas>
     <!-- <div id="verticalButtons">
       <button id="saveButton" >save</button>
@@ -14,6 +29,6 @@
     </div>
     <canvas id="networkCanvas"></canvas> -->
   </body>
-  <link href="./drivingCar/style.css" rel="stylesheet">
+  <link href="./style.css" rel="stylesheet">
   <script type="module" src="./blueprint/main.js"></script>
 </html>

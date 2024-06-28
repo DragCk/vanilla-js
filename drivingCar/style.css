@@ -6,6 +6,15 @@ body {
     justify-content: center;
     align-items: center;
 }
+#canvas{
+    background: lightgray;
+}
+
+#networkCanvas{
+    background: black;
+}
+
+
 
 #verticalButtons{
     display: flex;
@@ -22,12 +31,4 @@ button{
 
 button:hover{
     background: blue;
-}
-
-#canvas{
-    background: lightgray;
-}
-
-#networkCanvas{
-    background: black;
 }

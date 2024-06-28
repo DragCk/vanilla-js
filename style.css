@@ -19,4 +19,46 @@ body {
 canvas {
   margin: 0;
   padding: 0;
+  background: lightgray;
+
+}
+
+.draggable-window {
+  position: absolute;
+  width: 300px;
+  border: 1px solid #ccc;
+  background-color: rgba(249, 249, 249, 0.9);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  z-index: 1000;
+  transition: height 0.3s ease-out;
+}
+
+.window-header {
+  padding: 10px;
+  background-color: #e0e0e0;
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid black;
+}
+
+.window-content {
+  padding: 10px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+  border: 1px solid black;
+}
+
+.window-content.collapsed {
+  max-height: 0;
+  padding: 0 10px;
+  border: none;
+}
+
+#toggleButton {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
 }
