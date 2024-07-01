@@ -1,8 +1,8 @@
 
 import { Planner2D } from "./models2D/planner2D"
 
-const canvas = document.getElementById("canvas")
-const ctx = canvas.getContext("2d")
+const canvas2d = document.getElementById("canvas2d")
+
 
 const draggableWindow = document.getElementById('draggableWindow');
 const header = document.querySelector('.window-header');
@@ -48,8 +48,8 @@ function drag(e) {
     let newY = windowStartY + e.clientY - dragStartY;
     
     // 確保視窗不會被拖出視窗範圍
-    newX = Math.max(0, Math.min(newX, canvas.width - draggableWindow.offsetWidth));
-    newY = Math.max(0, Math.min(newY, canvas.height - draggableWindow.offsetHeight));
+    newX = Math.max(0, Math.min(newX, canvas2d.width - draggableWindow.offsetWidth));
+    newY = Math.max(0, Math.min(newY, canvas2d.height - draggableWindow.offsetHeight));
     
     draggableWindow.style.left = newX + 'px';
     draggableWindow.style.top = newY + 'px';
@@ -64,9 +64,9 @@ window.addEventListener('mousedown', (e) => e.stopPropagation());
 window.addEventListener('mousemove', (e) => e.stopPropagation());
 window.addEventListener('mouseup', (e) => e.stopPropagation());
 
-canvas.height = window.innerHeight
-canvas.width = window.innerWidth
+canvas2d.height = window.innerHeight
+canvas2d.width = window.innerWidth
 
-const planner2D = new Planner2D(canvas, ctx)
+const planner2D = new Planner2D(canvas2d)
 
 planner2D.animate()
