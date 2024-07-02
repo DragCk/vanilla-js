@@ -14,17 +14,25 @@
           <button id="toggleButton">▲</button>
       </div>
       <div class="window-content">
-          <button id="view-mode">View 2D/3D</button>
+          <button id="view-mode-button">View 2D/3D</button>
           <div id="panelPlanner2d" class="panel-planner2d">
             <button id="drawButton">DRAW</button>
             <button id="editButton">EDIT</button>
+            <button id="deleteButton">Delete</button>
           </div>
       </div>
     </div>
     <!-- Draggable Window container -->
 
     <!-- Canvas container -->
-    <canvas id="canvas2d"></canvas>
+     <div id="canvasContainer">
+      <canvas id="canvas2d" class="canvas active"></canvas>
+      <canvas id="canvas3d" class="canvas"></canvas>
+     </div>
+    
+    <!-- Canvas container -->
+
+
     <!-- <div id="verticalButtons">
       <button id="saveButton" >save</button>
       <button id="discardButton">discard</button>

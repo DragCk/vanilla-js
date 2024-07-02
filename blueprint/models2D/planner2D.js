@@ -3,7 +3,7 @@ import { Corner } from "./corner.model";
 import { Utils } from "./utils.model";
 import { Grid } from "./grid.model";
 import { Wall } from "./wall.model";
-//import { displayBuddha } from "../blessing/buddhaBless";
+import { displayBuddha } from "../blessing/buddhaBless";
 export class Planner2D {
 
     static corners = []
@@ -12,7 +12,7 @@ export class Planner2D {
     constructor(canvas) {
       this.canvas = canvas;
       this.ctx = canvas.getContext("2d");
-  
+      this.canvas.style.background = "lightgray"
       // disable right clicking
       document.oncontextmenu = function () {
         return false;
@@ -44,6 +44,7 @@ export class Planner2D {
       //button
       this.drawButton = document.getElementById("drawButton")
       this.editButton = document.getElementById("editButton")
+      this.deleteButton = document.getElementById("deleteButton")
 
       //Canvas state 
       this.movingMode = false
@@ -53,7 +54,6 @@ export class Planner2D {
       this.isdrawingTemp = false
       
 
-      
       this.grid = new Grid(this.canvas, this.ctx, 50)
 
       this.init();
@@ -73,11 +73,15 @@ export class Planner2D {
       //Button Event Handlers
       this.drawButton.addEventListener('click', () => {console.log("DrawButton clicked")})
       this.editButton.addEventListener('click', () => {console.log("EditButton clicked")})
+      this.deleteButton.addEventListener('click', () => {console.log("DeleteButton clicked")})
       //Windows Event Handlers
       document.addEventListener("keydown", this.onKeyDown.bind(this))
-
+      displayBuddha()
     }
   
+    onDrawButton(){
+      this.drawingMode = !this.drawingMode
+    }
     
     onKeyDown(event){
       if( event.key !== "Escape") return
@@ -332,6 +336,13 @@ export class Planner2D {
     animate() {
       requestAnimationFrame(this.animate.bind(this));
       this.redrawCanvas();
+    }
+
+    start(){
+      this.animate()
+    }
+    stop(){
+      cancelAnimationFrame(this.animate.bind(this));
     }
     drawTempLine(x0, y0, x1, y1) {
       const distance = Utils.distance({x: x0, y: y0}, {x: x1, y: y1});

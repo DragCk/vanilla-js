@@ -1,28 +1,28 @@
 import { Planner2D } from "./models2D/planner2D";
-
+import { Test3D } from "./model3D/test3d";
 
 export class SceneManager {
     constructor() {
         this.canvas2D = document.getElementById('canvas2d');
         this.canvas3D = document.getElementById('canvas3d');
-        this.toggleButton = document.getElementById('toggleButton');
+        this.modeButton = document.getElementById('view-mode-button');
         
         this.is3DMode = false;
         this.view2D = new Planner2D(this.canvas2D);
-        this.view3D = new Canvas3DView(this.canvas3D);
-        
-        this.setupEventListeners();
+        this.view3D = new Test3D(this.canvas3D);
+
         this.updateView();
+        this.setupEventListeners();
     }
 
     setupEventListeners() {
-        this.toggleButton.addEventListener('click', () => this.toggleView());
+        this.modeButton.addEventListener('click', () => this.toggleView());
     }
 
     toggleView() {
         this.is3DMode = !this.is3DMode;
         this.updateView();
-        this.toggleButton.textContent = this.is3DMode ? '切換到 2D' : '切換到 3D';
+        //this.modeButton.textContent = this.is3DMode ? '切換到 2D' : '切換到 3D';
     }
 
     updateView() {

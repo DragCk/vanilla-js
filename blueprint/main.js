@@ -1,5 +1,6 @@
 
 import { Planner2D } from "./models2D/planner2D"
+import { SceneManager } from "./sceneManager"
 
 const canvas2d = document.getElementById("canvas2d")
 
@@ -67,6 +68,9 @@ window.addEventListener('mouseup', (e) => e.stopPropagation());
 canvas2d.height = window.innerHeight
 canvas2d.width = window.innerWidth
 
-const planner2D = new Planner2D(canvas2d)
+// const planner2D = new Planner2D(canvas2d)
 
-planner2D.animate()
+// planner2D.animate()
+
+const sceneManager = new SceneManager()
+sceneManager.updateView()

@@ -21,13 +21,10 @@ const buddhaArt = `
                    \`=---='
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-         佛祖保佑          永无BUG
+         佛祖保佑          永無BUG
         God Bless        Never Crash
 `;
 
-function displayBuddha() {
+export const displayBuddha = () => {
     console.log(buddhaArt);
 }
-
-// 導出函數，以便在其他模塊中使用
-export default displayBuddha ;
