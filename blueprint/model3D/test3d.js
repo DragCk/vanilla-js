@@ -6,58 +6,82 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 export class Test3D {
     constructor(canvas) {
         this.canvas = canvas;
+        this.setupScene()
+        this.init();
+    }
+
+    setupScene(){
+        //Scene Setup
         this.scene = new THREE.Scene();
+
+        //Camera Setup
         this.camera = new THREE.PerspectiveCamera(
             75, 
             this.canvas.clientWidth / this.canvas.clientHeight, 
             0.1, 
-            1000
+            10000
         );
+        this.camera.position.set(0, 600, 600);
+        this.camera.lookAt(this.scene.position)
+
+        //Renderer Setup
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas
         });
-        
-        this.animationId = null
-
-        this.init();
-    }
-
-    init() {
-       
         this.renderer.setSize(this.canvas.innerWidth, this.canvas.innerHeight);
         this.renderer.setClearColor("black");
-        
-        this.camera.position.set(0, 6, 10);
-        this.camera.lookAt(this.scene.position)
+    
+        // OrbitControls setup
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.maxPolarAngle = Math.PI * 0.5
+        this.controls.enablePan = false
+        this.controls.rotateSpeed = 0.5
+
+
+        // GridHelper setup
+        const gridSize = 1000; // Size of the grid in scene units
+        const divisions = gridSize / 50; // Number of divisions to make each cell ~50px
+        this.gridHelper = new THREE.GridHelper(gridSize, divisions);
+        this.scene.add(this.gridHelper);
+
         this.onWindowResize()
-        window.addEventListener('resize', this.onWindowResize.bind(this));
+        
+    }
+    init() {
+        window.addEventListener('resize', () => this.onWindowResize());
+
         this.createObjects();
-        
-        
     }
 
     createObjects() {
-        // 创建一个简单的立方体
-        const geometry = new THREE.BoxGeometry(5, 5, 5);
-        const material = new THREE.MeshBasicMaterial({ color: "white" });
+        // Create cube
+        const geometry = new THREE.BoxGeometry(200, 200, 200);
+        const material = new THREE.MeshBasicMaterial({ color: "#f6ff33" });
         this.cube = new THREE.Mesh(geometry, material);
-        this.scene.add(this.cube);
-        
+        this.scene.add(this.cube); 
     }
 
-    
+
+    clearScene() {
+        // Remove all objects except the grid helper
+        this.scene.children = this.scene.children.filter(child => child === this.gridHelper);
+      
+    }
 
     onWindowResize() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.render(this.scene, this.camera)
     }
 
     animate() {
-        this.animationId = requestAnimationFrame(this.animate.bind(this));
+        this.animationId = requestAnimationFrame(() => this.animate());
+
         this.cube.rotation.x += 0.001;
         this.cube.rotation.y += 0.001;
+
+        // Update controls
+        this.controls.update();
         
         this.renderer.render(this.scene, this.camera);
     }
