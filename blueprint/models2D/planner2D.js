@@ -19,7 +19,6 @@ export class Planner2D {
       };
   
       // list of all drawing
-      
       this.movingShape = []
       this.mainWall = null
       this.tempLine = null;
@@ -41,24 +40,23 @@ export class Planner2D {
       this.leftMouseDown = false;
       this.rightMouseDown = false;
 
-      //button
+      // button
       this.drawButton = document.getElementById("drawButton")
       this.editButton = document.getElementById("editButton")
       this.deleteButton = document.getElementById("deleteButton")
 
-      //Canvas state 
-      this.movingMode = false
+      // Canvas state 
+      this.paningMode = false
       this.drawingMode = true
       this.editMode = false
-      this.isDraggingShape = false
+      this.deleteMode = false
       this.isdrawingTemp = false
-      
 
       this.grid = new Grid(this.canvas, this.ctx, 50)
 
       this.init();
     }
-  
+ 
     init() {
       this.redrawCanvas();
       window.addEventListener("resize", this.redrawCanvas.bind(this));
@@ -71,35 +69,15 @@ export class Planner2D {
       this.canvas.addEventListener("wheel", this.onMouseWheel.bind(this));
 
       //Button Event Handlers
-      this.drawButton.addEventListener('click', () => {console.log("DrawButton clicked")})
-      this.editButton.addEventListener('click', () => {console.log("EditButton clicked")})
-      this.deleteButton.addEventListener('click', () => {console.log("DeleteButton clicked")})
+      this.drawButton.addEventListener('click', () => {this.onDrawButton()})
+      this.editButton.addEventListener('click', () => {this.onEditButton()})
+      this.deleteButton.addEventListener('click', () => {this.onDeleteButton()})
+
       //Windows Event Handlers
       document.addEventListener("keydown", this.onKeyDown.bind(this))
       displayBuddha()
     }
-  
-    onDrawButton(){
-      this.drawingMode = !this.drawingMode
-    }
-    
-    onKeyDown(event){
-      if( event.key !== "Escape") return
 
-      this.leftMouseDown = false;
-      this.rightMouseDown = false;
-
-      //clear temp drawing
-      this.isdrawingTemp = false;
-      this.tempLine = null
-      this.prevCorner = null
-
-      //Switch mode
-      this.movingMode = !this.movingMode
-      this.drawingMode = !this.drawingMode
-      this.editMode = !this.editMode
-      
-    }
     
 
     trueHeight() {
@@ -242,6 +220,47 @@ export class Planner2D {
             }
           }
         }
+        return
+      }
+
+      if(this.leftMouseDown && this.deleteMode){
+        
+        //
+        for(let i=0 ; i<Planner2D.corners.length ; i++){
+          const cornerShape = Planner2D.corners[i].mouseCheck(mousePos, this.scale)
+          if(cornerShape) {
+            console.log(cornerShape)
+            return
+          }
+        }
+
+        const wallIndex = Utils.closestWall(mousePos, Planner2D.walls);
+        if (wallIndex !== undefined) {
+          const corner1 = Planner2D.walls[wallIndex].start
+          const corner2 = Planner2D.walls[wallIndex].end
+          Planner2D.walls.splice(wallIndex, 1);
+          
+          // Function to count occurrences in corners array
+          const countOccurrences = (corner, walls) => {
+            return walls.reduce((count, currentWall) => {
+              return count + (
+                (currentWall.start.x === corner.x && currentWall.start.y === corner.y) || 
+                (currentWall.end.x === corner.x && currentWall.end.y === corner.y)
+                ? 1 : 0);
+            }, 0);
+          };
+
+          const corner1Count = countOccurrences(corner1, Planner2D.walls);
+          const corner2Count = countOccurrences(corner2, Planner2D.walls);
+          
+          if (corner1Count < 1) {
+            Planner2D.corners = Planner2D.corners.filter(corner => !(corner.x === corner1.x && corner.y === corner1.y));
+          }
+        
+          if (corner2Count < 1) {
+            Planner2D.corners = Planner2D.corners.filter(corner => !(corner.x === corner2.x && corner.y === corner2.y));
+          }
+        }
       }
     }
   
@@ -269,7 +288,7 @@ export class Planner2D {
         };
       }
 
-      if(this.rightMouseDown && this.movingMode) {
+      if(this.rightMouseDown && this.paningMode) {
         // move the screen
         this.offset.x += (this.mousePos.x - this.prevMousePos.x) / this.scale;
         this.offset.y += (this.mousePos.y - this.prevMousePos.y) / this.scale;
@@ -284,8 +303,6 @@ export class Planner2D {
       this.leftMouseDown = false;
       this.rightMouseDown = false;
       
-
-
       for(let i=0 ; i<Planner2D.corners.length ; i++){
         Planner2D.corners[i].isDragging = false
         Planner2D.corners[i].isHover = false
@@ -333,6 +350,43 @@ export class Planner2D {
       
     }
   
+      
+    onDrawButton(){
+      this.drawingMode = true
+      this.paningMode = false
+      this.editMode = false
+      this.deleteMode = false
+    }
+    
+    onEditButton(){
+      this.drawingMode = false
+      this.paningMode = true
+      this.editMode = true
+      this.deleteMode = false
+    }
+
+    onDeleteButton(){
+      this.drawingMode = false
+      this.editMode = false
+      this.paningMode = true
+      this.deleteMode = true
+    }
+    onKeyDown(event){
+      if( event.key !== "Escape") return
+
+      //clear temp drawing
+      this.isdrawingTemp = false;
+      this.tempLine = null
+      this.prevCorner = null
+
+      this.drawingMode = !this.drawingMode
+      this.paningMode = !this.paningMode
+      this.editMode = !this.editMode
+      this.deleteMode = false
+      
+    }
+    
+
     animate() {
       requestAnimationFrame(this.animate.bind(this));
       this.redrawCanvas();
