@@ -12,7 +12,7 @@ export class Grid {
       if (this.canvas && this.context) {
         this.context.strokeStyle = "rgb(229,231,235)";
         this.context.lineWidth = 1;
-        this.context.font = "10px serif";
+        this.context.font = `${10 * scale}px arial`;
         this.context.beginPath();
   
         const width = this.canvas.clientWidth;

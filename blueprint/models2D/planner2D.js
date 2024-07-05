@@ -52,7 +52,8 @@ export class Planner2D {
       this.deleteMode = false
       this.isdrawingTemp = false
 
-      this.grid = new Grid(this.canvas, this.ctx, 50)
+      this.cellsize = 50
+      this.grid = new Grid(this.canvas, this.ctx, this.cellsize)
 
       this.init();
     }
@@ -131,6 +132,7 @@ export class Planner2D {
         this.rightMouseDown = true;
         this.leftMouseDown = false;
       }
+      console.log(Planner2D.walls)
   
       //Update the cursor coordinates
       this.mousePos.x = event.pageX;
@@ -152,9 +154,9 @@ export class Planner2D {
           newCorner = new Corner(mousePos)
           Planner2D.corners.push(newCorner)
         }
-
+        
         //Create wall if there is a prevCorner
-        if(this.prevCorner !== null){
+        if(this.prevCorner !== null && existCorner !== this.prevCorner){
           const newWall = new Wall(this.prevCorner, existCorner ? existCorner : newCorner)
           const existWall = Planner2D.walls.find(wall => wall.checkIfWallExists(newWall))
           if(!existWall)  Planner2D.walls.push(newWall)
@@ -225,11 +227,31 @@ export class Planner2D {
 
       if(this.leftMouseDown && this.deleteMode){
         
-        //
         for(let i=0 ; i<Planner2D.corners.length ; i++){
           const cornerShape = Planner2D.corners[i].mouseCheck(mousePos, this.scale)
           if(cornerShape) {
-            console.log(cornerShape)
+            const tempWall = []
+            const tempCorners = [cornerShape]
+            for(let j=0 ; j<Planner2D.walls.length ; j++){
+              const wallShape = Planner2D.walls[j].cornerCheck(cornerShape)
+              if(wallShape) {
+                tempWall.push(Planner2D.walls[j])
+                let tempC 
+                if(wallShape === "start") tempC = Planner2D.walls[j].end
+                if(wallShape === "end") tempC = Planner2D.walls[j].start
+
+                const count = Utils.countOccurrences(tempC, Planner2D.walls)
+                if(count <= 1) tempCorners.push(tempC)
+              }
+            }
+            Planner2D.walls = Planner2D.walls.filter(wall => !tempWall.includes(wall));
+            
+            Planner2D.corners = Planner2D.corners.filter(corner => 
+              !tempCorners.some(tempCorner => 
+                tempCorner.x === corner.x && tempCorner.y === corner.y
+              )
+            );
+
             return
           }
         }
@@ -240,18 +262,8 @@ export class Planner2D {
           const corner2 = Planner2D.walls[wallIndex].end
           Planner2D.walls.splice(wallIndex, 1);
           
-          // Function to count occurrences in corners array
-          const countOccurrences = (corner, walls) => {
-            return walls.reduce((count, currentWall) => {
-              return count + (
-                (currentWall.start.x === corner.x && currentWall.start.y === corner.y) || 
-                (currentWall.end.x === corner.x && currentWall.end.y === corner.y)
-                ? 1 : 0);
-            }, 0);
-          };
-
-          const corner1Count = countOccurrences(corner1, Planner2D.walls);
-          const corner2Count = countOccurrences(corner2, Planner2D.walls);
+          const corner1Count = Utils.countOccurrences(corner1, Planner2D.walls);
+          const corner2Count = Utils.countOccurrences(corner2, Planner2D.walls);
           
           if (corner1Count < 1) {
             Planner2D.corners = Planner2D.corners.filter(corner => !(corner.x === corner1.x && corner.y === corner1.y));

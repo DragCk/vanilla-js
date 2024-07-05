@@ -1,5 +1,13 @@
 export class Utils{
 
+    static countOccurrences (corner, walls){
+        return walls.reduce((count, currentWall) => {
+            return count + (
+            (currentWall.start.x === corner.x && currentWall.start.y === corner.y) || 
+            (currentWall.end.x === corner.x && currentWall.end.y === corner.y)
+            ? 1 : 0);
+        }, 0);
+    };
     static distance(start, end){
         const result = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2))
         return result
