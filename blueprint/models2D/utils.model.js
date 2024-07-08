@@ -100,12 +100,12 @@ export class Utils{
     }
     
     //return angle from (0,0) to (x,y)
-    vectorDirection = ({x,y}) => {
+    static vectorDirection = ({x,y}) => {
         return Math.atan2(y,x)
     }
 
     //return magnitude from (0,0) to (x,y)
-    vectorMagnitude = ({x,y}) => {
+    static vectorMagnitude = ({x,y}) => {
         return Math.hypot(x,y)
     }
 }
