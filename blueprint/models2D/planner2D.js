@@ -6,9 +6,6 @@ import { Wall } from "./wall.model";
 import { displayBuddha } from "../blessing/buddhaBless";
 export class Planner2D {
 
-    static corners = []
-    static walls = []
-    
     constructor(canvas) {
       this.canvas = canvas;
       this.ctx = canvas.getContext("2d");
@@ -19,6 +16,8 @@ export class Planner2D {
       };
   
       // list of all drawing
+      this.corners = []
+      this.walls = []
       this.movingShape = []
       this.mainWall = null
       this.tempLine = null;
@@ -31,7 +30,7 @@ export class Planner2D {
       this.mouseOffsetWall = {sx:0, sy:0, ex:0, ey:0}
 
       // distance from origin
-      this.offset = {x:0, y:0}
+      this.offset = {x:this.canvas.width/2, y:this.canvas.height/2}
 
       // zoom amount
       this.scale = 1;
@@ -79,7 +78,15 @@ export class Planner2D {
       displayBuddha()
     }
 
-    
+    notifyChange() {
+      if (this.onChange) {
+        this.onChange(this.walls);
+      }
+    }
+
+    setOnChangeCallback(callback) {
+      this.onChange = callback;
+    }
 
     trueHeight() {
       return this.canvas.clientHeight / this.scale;
@@ -95,17 +102,22 @@ export class Planner2D {
       this.canvas.height = window.innerHeight;
 
       //Drawing grid
+      
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
       this.grid.drawGrid(this.offset, this.scale)
-
+      this.ctx.arc(
+        Utils.toScreen(0, this.offset.x, this.scale), 
+        Utils.toScreen(0, this.offset.y, this.scale), 
+        5*this.scale, 0, 2 * Math.PI)
+      this.ctx.fill()
       //Drawing Walls
-      for(let i=0 ; i<Planner2D.walls.length ; i++){
-        Planner2D.walls[i].drawWall(this.ctx, this.offset, this.scale)
+      for(let i=0 ; i<this.walls.length ; i++){
+        this.walls[i].drawWall(this.ctx, this.offset, this.scale)
       }
 
       //Drawing Corners
-      for(let i=0 ; i<Planner2D.corners.length ; i++){
-        Planner2D.corners[i].drawCorner(this.ctx, this.offset, this.scale)
+      for(let i=0 ; i<this.corners.length ; i++){
+        this.corners[i].drawCorner(this.ctx, this.offset, this.scale)
       }
 
       //Drawing TempLine
@@ -117,6 +129,8 @@ export class Planner2D {
           Utils.toScreen(this.tempLine.y1, this.offset.y, this.scale)
         );
       }
+
+      
     }
 
 
@@ -132,7 +146,7 @@ export class Planner2D {
         this.rightMouseDown = true;
         this.leftMouseDown = false;
       }
-      console.log(Planner2D.walls)
+      
   
       //Update the cursor coordinates
       this.mousePos.x = event.pageX;
@@ -148,18 +162,21 @@ export class Planner2D {
       //Create Corner if in condition  
       if(this.leftMouseDown && this.drawingMode){
         //if mousePos already in corner array, 
-        const existCorner = Planner2D.corners.find(corner => corner.mouseCheck(mousePos, this.scale))
+        const existCorner = this.corners.find(corner => corner.mouseCheck(mousePos, this.scale))
         let newCorner
         if(!existCorner){
           newCorner = new Corner(mousePos)
-          Planner2D.corners.push(newCorner)
+          this.corners.push(newCorner)
         }
         
         //Create wall if there is a prevCorner
         if(this.prevCorner !== null && existCorner !== this.prevCorner){
           const newWall = new Wall(this.prevCorner, existCorner ? existCorner : newCorner)
-          const existWall = Planner2D.walls.find(wall => wall.checkIfWallExists(newWall))
-          if(!existWall)  Planner2D.walls.push(newWall)
+          const existWall = this.walls.find(wall => wall.checkIfWallExists(newWall))
+          if(!existWall){
+            this.walls.push(newWall)
+            
+          }
         }
         
         this.prevCorner = existCorner ? existCorner : newCorner
@@ -172,15 +189,15 @@ export class Planner2D {
       if(this.movingShape.length > 0) this.movingShape = []
 
         //Check if is in any corner
-        for(let i=0 ; i<Planner2D.corners.length ; i++){
-          const cornerShape = Planner2D.corners[i].mouseCheck(mousePos, this.scale)
+        for(let i=0 ; i<this.corners.length ; i++){
+          const cornerShape = this.corners[i].mouseCheck(mousePos, this.scale)
           if(cornerShape) {
             this.movingShape.push(cornerShape)
-            for(let j=0 ; j<Planner2D.walls.length ; j++){
-              const wallShape = Planner2D.walls[j].cornerCheck(cornerShape)
+            for(let j=0 ; j<this.walls.length ; j++){
+              const wallShape = this.walls[j].cornerCheck(cornerShape)
               if(wallShape) {
-                Planner2D.walls[j].movingCorner = wallShape
-                this.movingShape.push(Planner2D.walls[j])
+                this.walls[j].movingCorner = wallShape
+                this.movingShape.push(this.walls[j])
               }
             }
             return
@@ -188,13 +205,13 @@ export class Planner2D {
         }
         
         //Check if is in any wall
-        const wallIndex = Utils.closestWall(mousePos, Planner2D.walls);
+        const wallIndex = Utils.closestWall(mousePos, this.walls);
         if (wallIndex !== undefined) {
-          Planner2D.walls[wallIndex].isDragging = true
-          Planner2D.walls[wallIndex].movingCorner = "both";
-          this.movingShape.push(Planner2D.walls[wallIndex]);
+          this.walls[wallIndex].isDragging = true
+          this.walls[wallIndex].movingCorner = "both";
+          this.movingShape.push(this.walls[wallIndex]);
           
-          this.mainWall = Planner2D.walls[wallIndex]
+          this.mainWall = this.walls[wallIndex]
 
           this.mouseOffsetWall = {
             sx: this.mainWall.start.x - mousePos.x,
@@ -203,8 +220,8 @@ export class Planner2D {
             ey: this.mainWall.end.y - mousePos.y,      
           }
           
-          for(let i=0 ; i<Planner2D.corners.length ; i++){
-            const corner = Planner2D.corners[i]
+          for(let i=0 ; i<this.corners.length ; i++){
+            const corner = this.corners[i]
             if(corner.x === this.mainWall.start.x && corner.y === this.mainWall.start.y ||
               corner.x === this.mainWall.end.x && corner.y === this.mainWall.end.y)
             {
@@ -213,12 +230,12 @@ export class Planner2D {
             }
           }
 
-          for(let i=0 ; i<Planner2D.walls.length ; i++){
+          for(let i=0 ; i<this.walls.length ; i++){
             if(i === wallIndex) continue
-            const wall = Planner2D.walls[i].cornerCheck(this.mainWall.start) || Planner2D.walls[i].cornerCheck(this.mainWall.end)
+            const wall = this.walls[i].cornerCheck(this.mainWall.start) || this.walls[i].cornerCheck(this.mainWall.end)
             if(wall) {
-              Planner2D.walls[i].movingCorner = wall
-              this.movingShape.push(Planner2D.walls[i])
+              this.walls[i].movingCorner = wall
+              this.movingShape.push(this.walls[i])
             }
           }
         }
@@ -227,26 +244,26 @@ export class Planner2D {
 
       if(this.leftMouseDown && this.deleteMode){
         
-        for(let i=0 ; i<Planner2D.corners.length ; i++){
-          const cornerShape = Planner2D.corners[i].mouseCheck(mousePos, this.scale)
+        for(let i=0 ; i<this.corners.length ; i++){
+          const cornerShape = this.corners[i].mouseCheck(mousePos, this.scale)
           if(cornerShape) {
             const tempWall = []
             const tempCorners = [cornerShape]
-            for(let j=0 ; j<Planner2D.walls.length ; j++){
-              const wallShape = Planner2D.walls[j].cornerCheck(cornerShape)
+            for(let j=0 ; j<this.walls.length ; j++){
+              const wallShape = this.walls[j].cornerCheck(cornerShape)
               if(wallShape) {
-                tempWall.push(Planner2D.walls[j])
+                tempWall.push(this.walls[j])
                 let tempC 
-                if(wallShape === "start") tempC = Planner2D.walls[j].end
-                if(wallShape === "end") tempC = Planner2D.walls[j].start
+                if(wallShape === "start") tempC = this.walls[j].end
+                if(wallShape === "end") tempC = this.walls[j].start
 
-                const count = Utils.countOccurrences(tempC, Planner2D.walls)
+                const count = Utils.countOccurrences(tempC, this.walls)
                 if(count <= 1) tempCorners.push(tempC)
               }
             }
-            Planner2D.walls = Planner2D.walls.filter(wall => !tempWall.includes(wall));
+            this.walls = this.walls.filter(wall => !tempWall.includes(wall));
             
-            Planner2D.corners = Planner2D.corners.filter(corner => 
+            this.corners = this.corners.filter(corner => 
               !tempCorners.some(tempCorner => 
                 tempCorner.x === corner.x && tempCorner.y === corner.y
               )
@@ -256,21 +273,21 @@ export class Planner2D {
           }
         }
 
-        const wallIndex = Utils.closestWall(mousePos, Planner2D.walls);
+        const wallIndex = Utils.closestWall(mousePos, this.walls);
         if (wallIndex !== undefined) {
-          const corner1 = Planner2D.walls[wallIndex].start
-          const corner2 = Planner2D.walls[wallIndex].end
-          Planner2D.walls.splice(wallIndex, 1);
+          const corner1 = this.walls[wallIndex].start
+          const corner2 = this.walls[wallIndex].end
+          this.walls.splice(wallIndex, 1);
           
-          const corner1Count = Utils.countOccurrences(corner1, Planner2D.walls);
-          const corner2Count = Utils.countOccurrences(corner2, Planner2D.walls);
+          const corner1Count = Utils.countOccurrences(corner1, this.walls);
+          const corner2Count = Utils.countOccurrences(corner2, this.walls);
           
           if (corner1Count < 1) {
-            Planner2D.corners = Planner2D.corners.filter(corner => !(corner.x === corner1.x && corner.y === corner1.y));
+            this.corners = this.corners.filter(corner => !(corner.x === corner1.x && corner.y === corner1.y));
           }
         
           if (corner2Count < 1) {
-            Planner2D.corners = Planner2D.corners.filter(corner => !(corner.x === corner2.x && corner.y === corner2.y));
+            this.corners = this.corners.filter(corner => !(corner.x === corner2.x && corner.y === corner2.y));
           }
         }
       }
@@ -315,20 +332,20 @@ export class Planner2D {
       this.leftMouseDown = false;
       this.rightMouseDown = false;
       
-      for(let i=0 ; i<Planner2D.corners.length ; i++){
-        Planner2D.corners[i].isDragging = false
-        Planner2D.corners[i].isHover = false
+      for(let i=0 ; i<this.corners.length ; i++){
+        this.corners[i].isDragging = false
+        this.corners[i].isHover = false
       }
 
-      for(let i=0 ; i<Planner2D.walls.length ; i++){
-        Planner2D.walls[i].isDragging = false 
-        Planner2D.walls[i].isHover = false 
+      for(let i=0 ; i<this.walls.length ; i++){
+        this.walls[i].isDragging = false 
+        this.walls[i].isHover = false 
       }
 
       this.mouseOffsetWall = {sx:0, sy:0, ex:0, ey:0}
       this.movingShape = []
       this.mainWall = null
-      
+      this.notifyChange();
     }
   
     onMouseWheel(event) {

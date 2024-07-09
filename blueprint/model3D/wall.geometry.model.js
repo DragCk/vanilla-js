@@ -71,4 +71,8 @@ export class Wall {
       addToScene(scene) {
         scene.add(this.mesh);
       }
+    
+      removeFromScene(scene) {
+        scene.remove(this.mesh);
+      }
 }

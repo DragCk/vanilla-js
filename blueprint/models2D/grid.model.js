@@ -17,7 +17,7 @@ export class Grid {
   
         const width = this.canvas.clientWidth;
         const height = this.canvas.clientHeight;
-  
+
         for (let x = (offset.x % this.cellSize) * scale; x <= width; x += this.cellSize * scale) {
           const source = x;
           this.context.moveTo(source, 0);
@@ -33,6 +33,10 @@ export class Grid {
           this.context.lineTo(width, destination);
           this.context.fillText(`${Utils.toTrue(destination, offset.y, scale).toFixed(0)}`, 0, destination);
         }
+        
+        
+        
+        
         this.context.stroke();
         this.context.closePath()
       }

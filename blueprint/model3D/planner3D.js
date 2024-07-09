@@ -4,7 +4,7 @@ import { Wall } from './wall.geometry.model';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 
-export class Test3D {
+export class Planner3D {
     constructor(canvas) {
         this.canvas = canvas;
         this.setupScene()
@@ -14,7 +14,7 @@ export class Test3D {
         this.setupGridHelper()
         this.init();
 
-        
+        this.walls = []
     }
 
     setupScene(){
@@ -32,7 +32,6 @@ export class Test3D {
         );
         this.camera.position.set(0, 600, 600);
         this.camera.lookAt(this.scene.position)
-
     }
 
     setupRenderer(){
@@ -42,7 +41,6 @@ export class Test3D {
         });
         this.renderer.setSize(this.canvas.innerWidth, this.canvas.innerHeight);
         this.renderer.setClearColor("black");
-    
     }
 
     setOrbitControls(){
@@ -55,7 +53,7 @@ export class Test3D {
 
     setupGridHelper(){
         // GridHelper setup
-        const gridSize = 1000; // Size of the grid in scene units
+        const gridSize = 5000; // Size of the grid in scene units
         const divisions = gridSize / 50; // Number of divisions to make each cell ~50px
         this.gridHelper = new THREE.GridHelper(gridSize, divisions);
         this.scene.add(this.gridHelper);
@@ -64,53 +62,23 @@ export class Test3D {
     init() {
         this.onWindowResize()
         window.addEventListener('resize', () => this.onWindowResize());
-
-        const walls = [
-            {
-              start: { x: 100, y: 0 },
-              end: { x: 0, y: 0 },
-              color: "blue",
-              isDragging: false,
-              isHover: false,
-              lineWidth: 3,
-              movingCorner: null,
-              wallId: 0
-            },
-            {
-              start: { x: 0, y: 0 },
-              end: { x: 100, y: 100 },
-              color: "green",
-              isDragging: false,
-              isHover: false,
-              lineWidth: 3,
-              movingCorner: null,
-              wallId: 1
-            }
-          ];
-
         
-        this.createWalls(walls)
     }
 
-    createObjects() {
-        // Create cube
-        const geometry = new THREE.BoxGeometry(200, 200, 200);
-        const material = new THREE.MeshBasicMaterial({ color: "#f6ff33" });
-        this.cube = new THREE.Mesh(geometry, material);
-        this.scene.add(this.cube); 
-    }
-
-    createWalls(wallArray) {
-        // Clear the previous walls
-        
+    updateWalls(walls2d) {
+        // Remove all existing walls from the scen
+        console.log(walls2d)
+        this.walls.forEach(wall => wall.removeFromScene(this.scene));
+        this.walls = [];
     
-        wallArray.forEach(wall => {
-          const { start, end, color } = wall;
+        // Create new walls based on the wallArray
+        walls2d.forEach(wall => {
+          const { start, end } = wall;
           const height = 200; // Default height, can be customized
           const depth = 10; // Default depth, can be customized
-          const wallColor = new THREE.Color(color).getHex();
-          const wallObject = new Wall(start, end, height, depth, wallColor);
+          const wallObject = new Wall(start, end, height, depth);
           wallObject.addToScene(this.scene);
+          this.walls.push(wallObject);
         });
       }
 
@@ -128,9 +96,6 @@ export class Test3D {
 
     animate() {
         this.animationId = requestAnimationFrame(() => this.animate());
-
-        // this.cube.rotation.x += 0.001;
-        // this.cube.rotation.y += 0.001;
 
         // Update controls
         this.controls.update();

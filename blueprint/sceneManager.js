@@ -1,5 +1,5 @@
 import { Planner2D } from "./models2D/planner2D";
-import { Test3D } from "./model3D/test3d";
+import { Planner3D } from "./model3D/planner3D";
 
 export class SceneManager {
     constructor() {
@@ -9,8 +9,9 @@ export class SceneManager {
         
         this.is3DMode = false;
         this.view2D = new Planner2D(this.canvas2D);
-        this.view3D = new Test3D(this.canvas3D);
+        this.view3D = new Planner3D(this.canvas3D);
 
+        this.view2D.setOnChangeCallback((walls) => this.view3D.updateWalls(walls));
         this.updateView();
         this.setupEventListeners();
     }
