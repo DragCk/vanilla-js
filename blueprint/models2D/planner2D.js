@@ -80,7 +80,7 @@ export class Planner2D {
 
     notifyChange() {
       if (this.onChange) {
-        this.onChange(this.walls);
+        this.onChange(this.walls, this.corners);
       }
     }
 
@@ -129,10 +129,20 @@ export class Planner2D {
           Utils.toScreen(this.tempLine.y1, this.offset.y, this.scale)
         );
       }
-
-      
     }
 
+    drawTempLine(x0, y0, x1, y1) {
+      const distance = Utils.distance({x: x0, y: y0}, {x: x1, y: y1});
+      this.ctx.beginPath();
+      this.ctx.moveTo(x0, y0);
+      this.ctx.lineTo(x1, y1);
+      this.ctx.strokeStyle = "red";
+      this.ctx.lineWidth = 3 * this.scale;
+      this.ctx.font = `${15 * this.scale}px arial`;
+      this.ctx.fillText(distance.toFixed(0), (x0 + x1) / 2, (y0 + y1) / 2);
+      this.ctx.stroke();
+      this.ctx.closePath()
+    }
 
     onMouseDown(event) {
       //Detect left clicks
@@ -268,7 +278,6 @@ export class Planner2D {
                 tempCorner.x === corner.x && tempCorner.y === corner.y
               )
             );
-
             return
           }
         }
@@ -412,9 +421,7 @@ export class Planner2D {
       this.paningMode = !this.paningMode
       this.editMode = !this.editMode
       this.deleteMode = false
-      
     }
-    
 
     animate() {
       requestAnimationFrame(this.animate.bind(this));
@@ -427,18 +434,7 @@ export class Planner2D {
     stop(){
       cancelAnimationFrame(this.animate.bind(this));
     }
-    drawTempLine(x0, y0, x1, y1) {
-      const distance = Utils.distance({x: x0, y: y0}, {x: x1, y: y1});
-      this.ctx.beginPath();
-      this.ctx.moveTo(x0, y0);
-      this.ctx.lineTo(x1, y1);
-      this.ctx.strokeStyle = "red";
-      this.ctx.lineWidth = 3 * this.scale;
-      this.ctx.font = `${15 * this.scale}px arial`;
-      this.ctx.fillText(distance.toFixed(0), (x0 + x1) / 2, (y0 + y1) / 2);
-      this.ctx.stroke();
-      this.ctx.closePath()
-    }
+    
   }
 
 

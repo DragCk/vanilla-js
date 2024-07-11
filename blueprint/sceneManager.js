@@ -11,7 +11,7 @@ export class SceneManager {
         this.view2D = new Planner2D(this.canvas2D);
         this.view3D = new Planner3D(this.canvas3D);
 
-        this.view2D.setOnChangeCallback((walls) => this.view3D.updateWalls(walls));
+        this.view2D.setOnChangeCallback((walls, corner) => this.view3D.updateWalls(walls, corner));
         this.updateView();
         this.setupEventListeners();
     }

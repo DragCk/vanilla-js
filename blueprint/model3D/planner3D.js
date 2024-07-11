@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { Planner2D } from '../models2D/planner2D';
+import { Pillar } from './pillar.geometry';
 import { Wall } from './wall.geometry.model';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
@@ -62,15 +62,14 @@ export class Planner3D {
     init() {
         this.onWindowResize()
         window.addEventListener('resize', () => this.onWindowResize());
-        
     }
 
-    updateWalls(walls2d) {
+    updateWalls(walls2d, corner2d) {
         // Remove all existing walls from the scen
-        console.log(walls2d)
-        this.walls.forEach(wall => wall.removeFromScene(this.scene));
+        
+        this.clearScene()
         this.walls = [];
-    
+        
         // Create new walls based on the wallArray
         walls2d.forEach(wall => {
           const { start, end } = wall;
@@ -80,7 +79,7 @@ export class Planner3D {
           wallObject.addToScene(this.scene);
           this.walls.push(wallObject);
         });
-      }
+    }
 
     clearScene() {
         // Remove all objects except the grid helper
