@@ -1,5 +1,13 @@
 export class Utils{
 
+    static snapToGrid(point, gridsize, offset, scale){
+        const grid = gridsize * scale
+        return {
+            x: Math.floor(point.x / grid) * grid,
+            y: Math.floor(point.y / grid) * grid
+        }
+    }
+
     static countOccurrences (corner, walls){
         return walls.reduce((count, currentWall) => {
             return count + (

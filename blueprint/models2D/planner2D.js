@@ -304,8 +304,15 @@ export class Planner2D {
   
     onMouseMove(event) {
       //Get mouse position
-      this.mousePos.x = event.pageX;
-      this.mousePos.y = event.pageY;
+      // this.mousePos = Utils.snapToGrid({
+      //   x: event.pageX,
+      //   y: event.pageY
+      // }, this.cellsize, this.offset, this.scale )
+
+      this.mousePos ={
+        x: event.pageX,
+        y: event.pageY
+      } 
 
       if(this.movingShape.length > 0) {
         for(let i=0 ; i<this.movingShape.length ; i++){

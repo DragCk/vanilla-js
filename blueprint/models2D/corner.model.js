@@ -51,7 +51,7 @@ export class Corner{
         
         return(this)
     }
- 
+
     update(mousePos, offset, scale, mouseOffsetWall){
         const originWall = {
             sx: Utils.toScreen(Utils.toTrue(mousePos.x, offset.x, scale) + mouseOffsetWall.sx, offset.x, scale),
