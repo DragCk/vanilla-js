@@ -7,7 +7,10 @@ export class Wall{
         this.end = { x:end.x, y:end.y }
         this.color = color
         this.lineWidth = 3
-        
+
+        this.startVertex = null
+        this.endVertex = null
+
         this.movingCorner = null
         this.isDragging = false
         this.isHover = false

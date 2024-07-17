@@ -41,7 +41,7 @@ export class Wall {
           3, 2, 6,
           6, 7, 3,
     
-          // Bottom face
+          // Bottom face  
           1, 0, 4,
           4, 5, 1,
     

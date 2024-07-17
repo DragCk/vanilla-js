@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { Pillar } from './pillar.geometry';
+import { Graph } from './graph';
 import { Wall } from './wall.geometry.model';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
@@ -7,13 +8,14 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 export class Planner3D {
     constructor(canvas) {
         this.canvas = canvas;
+        this.Graph = new Graph();
         this.setupScene()
         this.setupCamera()
         this.setupRenderer()
         this.setOrbitControls()
         this.setupGridHelper()
         this.init();
-
+        
         this.walls = []
     }
 
@@ -68,8 +70,11 @@ export class Planner3D {
         // Remove all existing walls from the scen
         
         this.clearScene()
+        this.Graph.clearAdjacencyList()
         this.walls = [];
-        
+        corner2d.forEach(corner => {
+            this.Graph.addVertex(corner.cornerId)
+        })
         // Create new walls based on the wallArray
         walls2d.forEach(wall => {
           const { start, end } = wall;
@@ -78,7 +83,9 @@ export class Planner3D {
           const wallObject = new Wall(start, end, height, depth);
           wallObject.addToScene(this.scene);
           this.walls.push(wallObject);
+          this.Graph.addEdge(wall)
         });
+        console.log(this.Graph.adjacencyList)
     }
 
     clearScene() {

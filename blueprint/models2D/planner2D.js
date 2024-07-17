@@ -184,8 +184,9 @@ export class Planner2D {
           const newWall = new Wall(this.prevCorner, existCorner ? existCorner : newCorner)
           const existWall = this.walls.find(wall => wall.checkIfWallExists(newWall))
           if(!existWall){
+            newWall.startVertex = this.prevCorner.cornerId
+            newWall.endVertex = existCorner ? existCorner.cornerId : newCorner.cornerId
             this.walls.push(newWall)
-            
           }
         }
         
