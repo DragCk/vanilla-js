@@ -107,6 +107,21 @@ export class Utils{
         }
     }
     
+    static angle = (start, end) => {
+        const dotProduct = start.x * end.x + start.y * end.y
+        const determinant = start.x * end.y - start.y * end.x
+        const angle = -Math.atan2(determinant, dotProduct)
+        return angle
+    }
+
+    static angle2pi = (start, end) => {
+        const theta = this.angle(start, end)
+
+        // normalize theta to be between 0 and 360 degrees
+        if ( theta < 0 ) theta += 2.0 * Math.PI
+        return theta
+    }
+
     //return angle from (0,0) to (x,y)
     static vectorDirection = ({x,y}) => {
         return Math.atan2(y,x)

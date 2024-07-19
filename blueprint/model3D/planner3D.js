@@ -72,10 +72,12 @@ export class Planner3D {
         this.clearScene()
         this.Graph.clearAdjacencyList()
         this.walls = [];
+
+        // Create new vertices based on the cornerArray
         corner2d.forEach(corner => {
             this.Graph.addVertex(corner.cornerId)
         })
-        // Create new walls based on the wallArray
+        // Create new walls and edges based on the wallArray
         walls2d.forEach(wall => {
           const { start, end } = wall;
           const height = 200; // Default height, can be customized
@@ -83,9 +85,9 @@ export class Planner3D {
           const wallObject = new Wall(start, end, height, depth);
           wallObject.addToScene(this.scene);
           this.walls.push(wallObject);
-          this.Graph.addEdge(wall)
+          this.Graph.addEdge(wall) // Create edges
         });
-        console.log(this.Graph.adjacencyList)
+        console.log(this.Graph.findPolygons())
     }
 
     clearScene() {
