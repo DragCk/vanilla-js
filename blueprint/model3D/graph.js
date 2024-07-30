@@ -1,3 +1,5 @@
+import { Vector2 } from "three";
+import { Corner } from "../models2D/corner.model";
 
 
 export class Graph {
@@ -18,44 +20,77 @@ export class Graph {
         this.adjacencyList.get(vertex2).push(vertex1)
    }
 
-   findPolygons() {
-       const visited = new Set()
-       const allPolygons = []
-       const stacks = []
-
-       const dfs = (node, parent) => {
-           visited.add(node)
-           stacks.push(node)
-
-           for(let child of this.adjacencyList.get(node)) {
-               if(!visited.has(child)){
-                    dfs(child, node)
-                }else if(child !== parent && stacks.includes(child)){
-                    const cycle = [...stacks.slice(stacks.indexOf(child))];
-                    allPolygons.push(cycle);
-                } 
-           }
-           stacks.pop()
-       }
-
-        for(let node of this.adjacencyList.keys()) {
-            
-            dfs(node, null)
-
-            
+   findRooms() {
+       
+        const calculateTheta = (previousCorner, currentCorner, nextCorner) => {
+            const theta = Utils.angle2pi(
+                new Vector2(previousCorner.x - currentCorner.x, previousCorner.y - currentCorner.y), 
+                new Vector2(nextCorner.x - currentCorner.x, nextCorner.y - currentCorner.y)
+            )
+            return theta
         }
-         // Remove duplicate cycles
-        const uniqueCycles = [];
-        const cycleStrings = new Set();
-        allPolygons.forEach(cycle => {
-        const cycleString = cycle.sort().join("-");
-        if (!cycleStrings.has(cycleString)) {
-            cycleStrings.add(cycleString);
-            uniqueCycles.push(cycle);
-        }
-        });
 
-        return allPolygons;
+        const _findTightestRoom = (firstCorner, secondCorner) => {
+            const stack = []
+            const next = { corner : secondCorner, previousCorners: [firstCorner]}
+            const visited = {}
+            visited[firstCorner.id] = true
+
+
+            while(next){
+                const currentCorner = next.corner
+                visited[currentCorner.id] = true
+
+                if(next.corner === firstCorner && currentCorner !== secondCorner){
+                    return next.previousCorners
+                }
+
+                const addToStack = []
+                const adjacentCorners = this.adjacencyList.get(currentCorner)
+                
+                for(let i = 0 ; i < adjacentCorners.length; i++){
+                    const nextCorner = adjacentCorners[i]
+                    console.log(i)
+                    if(nextCorner.id in visited && !(nextCorner === firstCorner && currentCorner !== secondCorner)){
+                        continue
+                    }
+
+                    addToStack.push(nextCorner)
+                }
+               
+                const previousCorners = next.previousCorners.slice(0)
+                previousCorners.push(currentCorner)
+
+                if(addToStack.length > 1){
+                    const previousCorner = next.previousCorners[next.previousCorners.length - 1]
+                    addToStack.sort((a, b) => {
+                        return(
+                            calculateTheta(previousCorner, currentCorner, b) - calculateTheta(previousCorner, currentCorner, a)
+                        )
+                    })
+                }
+
+                if(addToStack.length > 0){
+                    addToStack.forEach(corner => {
+                        stack.push({ corner :corner, previousCorners: previousCorners })
+                    })
+                }
+                console.log(stack)
+                next = stack.pop()
+            }
+
+            return []
+        }
+
+        const loops = []
+
+        this.adjacencyList.forEach((firstCorner) => {
+            firstCorner.forEach((secondCorner) => {
+                loops.push(_findTightestRoom(firstCorner, secondCorner))
+            })
+        })
+
+        return loops
    }
 
    clearAdjacencyList() {

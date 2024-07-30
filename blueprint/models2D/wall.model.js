@@ -15,8 +15,7 @@ export class Wall{
         this.isDragging = false
         this.isHover = false
 
-        this.wallId = Wall.wallCount
-        Wall.wallCount++
+        this.wallId = Utils.guide()
     }
 
     checkFollowTo(point, originWall, offset, scale){

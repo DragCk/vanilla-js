@@ -8,6 +8,12 @@ export class Utils{
         }
     }
 
+    /**
+     * Calculate the count of the number of walls around the corner
+     * @param {*} corner corner to check
+     * @param {array} walls arrays of walls to check
+     * @returns the count of the number of walls around the corner
+    */
     static countOccurrences (corner, walls){
         return walls.reduce((count, currentWall) => {
             return count + (
@@ -16,11 +22,25 @@ export class Utils{
             ? 1 : 0);
         }, 0);
     };
+
+
+    /**
+     * Calculate the distance between two points
+     * @param {*} start starting point
+     * @param {*} end ending point
+     * @returns The distance between two points
+     */
     static distance(start, end){
         const result = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2))
         return result
     }
 
+    /**
+     * Calculate the distance between the mouse and the point
+     * @param {*} mousePos Current mouse position
+     * @param {*} point The point we want to calculate the distance
+     * @returns return the offset of the mouse from the point
+     */
     static calculateRelativeDistances(mousePos, point) {
         const mouseOffset = {
             x: mousePos.x - point.x,
@@ -29,6 +49,15 @@ export class Utils{
     
         return  mouseOffset;
     }
+
+    /**
+     * Calculate the distance between the mouse and the line 
+     * @param {*} mousePos current mouse position
+     * @param {*} start starting point of the line
+     * @param {*} end end point of the line
+     * @param {*} lineWidth width of the line
+     * @returns Return a boolean if the mouse is near the line
+     */
     static isPointNearLine(mousePos, start, end, lineWidth) {
         // 计算点到线段的距离
         const numerator = Math.abs((end.y - start.y) * mousePos.x - (end.x - start.x) * mousePos.y + end.x * start.y - end.y * start.x);
@@ -78,10 +107,24 @@ export class Utils{
         return ({ x: x, y: y });
       }
 
+    /**
+     * Caluculate the position in current screen
+     * @param {*} position current position
+     * @param {*} offset the offset
+     * @param {*} scale window scale
+     * @returns return the position in current screen
+     */
     static toScreen(position, offset, scale) {
         return (position + offset) * scale;
     }
     
+    /**
+     * Calculate the position in true 
+     * @param {*} screen current screen
+     * @param {*} offset window offset
+     * @param {*} scale window scale
+     * @returns return the position in true scale
+     */
     static toTrue(screen, offset, scale) {
         return screen / scale - offset;
     }
@@ -122,13 +165,32 @@ export class Utils{
         return theta
     }
 
-    //return angle from (0,0) to (x,y)
+
+    /**
+     * Calculate the direction from (0,0) to (x,y)
+     * @param {*} 2D vector
+     * @returns return 0 to 360 degree
+     */
     static vectorDirection = ({x,y}) => {
         return Math.atan2(y,x)
     }
 
-    //return magnitude from (0,0) to (x,y)
+    /**
+     * Calculate th magnitude from (0,0) to (x,y)
+     * @param {*} 2D vector 
+     * @returns return the magnitude of the vector
+     */
     static vectorMagnitude = ({x,y}) => {
         return Math.hypot(x,y)
+    }
+
+    /** Creates a Guide.
+     * @returns A new Guide.
+     */
+    static guide() {
+        var tS4 = function() {
+            return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+        };
+        return tS4() + tS4() + '-' + tS4() + '-' + tS4() + '-' + tS4() + '-' + tS4() + tS4() + tS4();
     }
 }

@@ -87,7 +87,8 @@ export class Planner3D {
           this.walls.push(wallObject);
           this.Graph.addEdge(wall) // Create edges
         });
-        console.log(this.Graph.findPolygons())
+        
+        console.log(this.Graph.findRooms())
     }
 
     clearScene() {
