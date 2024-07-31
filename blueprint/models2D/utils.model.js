@@ -158,10 +158,10 @@ export class Utils{
     }
 
     static angle2pi = (start, end) => {
-        const theta = this.angle(start, end)
-
+        let theta = this.angle(start, end)
+        
         // normalize theta to be between 0 and 360 degrees
-        if ( theta < 0 ) theta += 2.0 * Math.PI
+        if ( theta < 0 ) theta += 2 * Math.PI
         return theta
     }
 

@@ -11,7 +11,7 @@ export class Corner{
         this.isDragging = false
         this.isHover = false
         
-        this.cornerId = Corner.cornerCount
+        this.id = Corner.cornerCount
         Corner.cornerCount++
     }
 

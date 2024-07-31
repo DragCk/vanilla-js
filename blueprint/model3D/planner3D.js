@@ -75,7 +75,7 @@ export class Planner3D {
 
         // Create new vertices based on the cornerArray
         corner2d.forEach(corner => {
-            this.Graph.addVertex(corner.cornerId)
+            this.Graph.addVertex(corner)
         })
         // Create new walls and edges based on the wallArray
         walls2d.forEach(wall => {
