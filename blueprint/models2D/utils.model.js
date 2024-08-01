@@ -165,6 +165,13 @@ export class Utils{
         return theta
     }
 
+    static map = (array, func) => {
+        const result = []
+        array.forEach((element) => {
+            result.push(func(element))
+        })
+        return result
+    }
 
     /**
      * Calculate the direction from (0,0) to (x,y)

@@ -33,7 +33,25 @@ export class Graph {
 
         const removeDuplicateRooms = (roomArrays) => {
             const result = []
+            const temp = new Set()
+            const hashFunc = (corner) => {
+                return corner.id
+            }
 
+            roomArrays.forEach((room) => {
+                let addToResult = true
+                const str = Utils.map(room, hashFunc).join("-")
+                if(temp.has(str)) {
+                    addToResult = false
+                }
+
+                if(addToResult) {
+                    result.push(room)
+                    temp.add(str)
+                }
+            })
+
+            return result
         }
 
         const _findTightestRoom = (firstCorner, secondCorner) => {
@@ -91,12 +109,15 @@ export class Graph {
             firstCornerValue.forEach((secondCorner) => {
                 const loop = _findTightestRoom(firstCornerKey, secondCorner);
                 if (loop.length > 0) {
+                    loop.sort((a, b) => a.id - b.id);
                     loops.push(loop);
                 }
             });
         });
         
-        return loops;
+        const uniqueRooms = removeDuplicateRooms(loops);
+
+        return uniqueRooms;
     }
 
 
