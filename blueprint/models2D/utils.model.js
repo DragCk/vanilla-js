@@ -165,6 +165,49 @@ export class Utils{
         return theta
     }
 
+    /**
+     * Check if array of points is clockwise or not
+     * @param {*} points arrays of poins contain x, y coordinates
+     * @return return true if the points are clockwise
+     */
+    static isClockWise = (points) => {
+        let tsubX = Math.min(0, Math.min.apply(null, this.map(points, function(p) { return p.x })))
+        let tsubY = Math.min(0, Math.min.apply(null, this.map(points, function(p) { return p.y })))
+    
+        const tNewPoints = Utils.map(points, function(p) {
+            return {
+                x: p.x - tsubX,
+                y: p.y - tsubY
+            };
+        });
+
+        /**
+         *  Determine whether the shape is clockwise or not
+         *  if the sum are positive, the shape is clockwise
+         *  otherwise the shape is counterclockwise
+         *  this step used the algorithm of Gauss's shoelace area formula
+         * */
+        let sum = 0
+        for (let i = 0; i < tNewPoints.length ; i++) {
+            const p1 = tNewPoints[i]
+            let p2
+            if( i === tNewPoints.length - 1 ) p2 = tNewPoints[0]
+            else p2 = tNewPoints[i + 1]
+
+            sum += (p2.x - p1.x) * (p1.y + p2.y)
+
+        }
+
+        return (sum >= 0)
+    }
+
+
+    /**
+     * Map an array using a function and return a new array with corner id
+     * @param {*} array room array
+     * @param {*} func  function that return corner id
+     * @returns return new array with corner id
+     */
     static map = (array, func) => {
         const result = []
         array.forEach((element) => {
@@ -172,6 +215,21 @@ export class Utils{
         })
         return result
     }
+
+    /**
+     * Traverse an array and remove if the function return true
+     * @param {*} array array of rooms
+     * @param {*} func function to detect if the room should be removed
+     * @returns return the only true rooms
+     */
+    static removeIf = (array, func) => {
+        const result = []
+        array.forEach((element) => {
+            if(!func(element)) result.push(element)
+        })
+        return result
+    }
+
 
     /**
      * Calculate the direction from (0,0) to (x,y)

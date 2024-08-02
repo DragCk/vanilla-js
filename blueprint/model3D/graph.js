@@ -40,7 +40,7 @@ export class Graph {
 
             roomArrays.forEach((room) => {
                 let addToResult = true
-                const str = Utils.map(room, hashFunc).join("-")
+                const str = Utils.map(room, hashFunc).sort((a,b) => a - b).join("-")
                 if(temp.has(str)) {
                     addToResult = false
                 }
@@ -109,7 +109,6 @@ export class Graph {
             firstCornerValue.forEach((secondCorner) => {
                 const loop = _findTightestRoom(firstCornerKey, secondCorner);
                 if (loop.length > 0) {
-                    loop.sort((a, b) => a.id - b.id);
                     loops.push(loop);
                 }
             });
@@ -117,7 +116,9 @@ export class Graph {
         
         const uniqueRooms = removeDuplicateRooms(loops);
 
-        return uniqueRooms;
+        const uniqueCCWRoom = Utils.removeIf(uniqueRooms, Utils.isClockWise)
+
+        return uniqueCCWRoom;
     }
 
 
