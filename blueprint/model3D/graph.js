@@ -1,5 +1,4 @@
 import { Vector2 } from "three";
-import { Corner } from "../models2D/corner.model";
 import { Utils } from "../models2D/utils.model";
 
 export class Graph {
@@ -68,12 +67,7 @@ export class Graph {
                 const currentCorner = nextState.corner;
                 visited.add(currentCorner.id);
 
-                // Debug: Print current state
-                // console.log('Current Corner:', currentCorner.id);
-                // console.log('Previous Corners:', nextState.previousCorners.map(corner => corner.id));
-                // console.log('Visited:', Array.from(visited));
-                // console.log('----------------------');
-
+                
                 // Check if we completed a loop back to the first corner
                 if (currentCorner === firstCorner && currentCorner !== secondCorner) {
                     return nextState.previousCorners;
