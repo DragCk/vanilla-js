@@ -60,7 +60,7 @@ export class Wall {
         this.geometry.computeVertexNormals();
     
         // Material
-        this.material = new THREE.MeshBasicMaterial({ color, wireframe: true });
+        this.material = new THREE.MeshBasicMaterial({ color });
     
         // Mesh
         this.mesh = new THREE.Mesh(this.geometry, this.material);
